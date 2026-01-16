@@ -11,6 +11,9 @@ assets/
 │   ├── OperatorList.vue    # 列表主页面
 │   ├── modal.vue           # 模态框组件
 │   └── api.ts              # API 接口定义
+└── form-templates/         # 表单模板
+    ├── README.md           # 使用说明
+    └── ZodFormModal.vue    # Zod 验证表单模态框
 ```
 
 ## 🚀 快速使用
@@ -162,3 +165,54 @@ const formOptions = {
 5. **性能优化**
    - 使用虚拟滚动处理大数据
    - 合理使用 computed 和 watch
+
+### 表单模板
+
+1. **复制文件**
+
+   ```bash
+   # 复制表单模态框
+   cp assets/form-templates/ZodFormModal.vue src/views/your-module/components/
+   ```
+
+2. **使用模态框**
+
+   ```typescript
+   import { useVbenModal } from '@vben/common-ui'
+   import ZodFormModal from './components/ZodFormModal.vue'
+
+   const [Modal, modalApi] = useVbenModal({
+     connectedComponent: ZodFormModal,
+   })
+
+   function openModal(row?: Record<string, any>) {
+     modalApi.setData({ row })
+     modalApi.open()
+   }
+   ```
+
+3. **Zod 验证配置**
+
+   ```typescript
+   import { z } from '#/adapter/form'
+
+   const rules = {
+     username: z
+       .string()
+       .min(4, { message: '用户名至少4个字符' })
+       .regex(/^[a-zA-Z][a-zA-Z0-9_]*$/, {
+         message: '支持英文、数字、下划线，字母开头',
+       }),
+     mobile: z
+       .string()
+       .regex(/^1\d{10}$/, { message: '请输入有效的手机号' }),
+     email: z.string().email('请输入正确的邮箱'),
+   }
+   ```
+
+### 功能特性
+
+| 模板 | 特性 |
+|------|------|
+| list-templates | 搜索表单、表格 CRUD、状态切换 |
+| form-templates | Zod 验证、动态数据、模态框集成 |
