@@ -11,9 +11,12 @@ assets/
 │   ├── OperatorList.vue    # 列表主页面
 │   ├── modal.vue           # 模态框组件
 │   └── api.ts              # API 接口定义
-└── form-templates/         # 表单模板
+├── form-templates/         # 表单模板
+│   ├── README.md           # 使用说明
+│   └── ZodFormModal.vue    # Zod 验证表单模态框
+└── detail-templates/       # 详情页面模板
     ├── README.md           # 使用说明
-    └── ZodFormModal.vue    # Zod 验证表单模态框
+    └── OperatorDetail.vue  # 详情页面组件
 ```
 
 ## 🚀 快速使用
@@ -216,3 +219,73 @@ const formOptions = {
 |------|------|
 | list-templates | 搜索表单、表格 CRUD、状态切换 |
 | form-templates | Zod 验证、动态数据、模态框集成 |
+| detail-templates | 详情展示、关联列表、状态操作 |
+
+### 详情页面模板
+
+1. **复制文件**
+
+   ```bash
+   # 复制详情页面
+   cp assets/detail-templates/OperatorDetail.vue src/views/your-module/detail.vue
+   ```
+
+2. **添加路由**
+
+   ```typescript
+   {
+     path: 'detail/:id',
+     name: 'ModuleDetail',
+     component: () => import('@/views/your-module/detail.vue'),
+     meta: {
+       title: '详情页面',
+       hideMenu: true,
+     },
+   }
+   ```
+
+3. **从列表页跳转**
+
+   ```typescript
+   const router = useRouter();
+   function openDetail(id: string) {
+     router.push({ name: 'ModuleDetail', query: { id } });
+   }
+   ```
+
+4. **核心功能**
+
+   - 页面描述区域（标题、状态、返回按钮）
+   - 基本信息展示（Descriptions 组件）
+   - 关联列表（Grid 组件）
+   - 状态切换操作
+   - Tab 管理集成
+
+5. **模板结构**
+
+   | 文件 | 说明 |
+   |------|------|
+   | `OperatorDetail.vue` | 详情页面主组件 |
+   | `README.md` | 使用说明 |
+
+### 最佳实践总结
+
+1. **文件命名**
+   - 使用 PascalCase 命名组件文件
+   - 使用 kebab-case 命名目录
+
+2. **代码组织**
+   - 将相关文件放在同一目录
+   - 使用 index.ts 导出模块
+
+3. **类型定义**
+   - 使用 TypeScript 定义类型
+   - 导出公共类型供其他地方使用
+
+4. **错误处理**
+   - 使用 try-catch 处理异步操作
+   - 显示友好的错误提示
+
+5. **性能优化**
+   - 使用虚拟滚动处理大数据
+   - 合理使用 computed 和 watch
