@@ -1,8 +1,8 @@
-# Vue 2 to Vue 3 Migration Guide
+# Vue 2 到 Vue 3 迁移指南
 
-## Critical Breaking Changes
+## 关键破坏性变更
 
-### 1. Global API Changes
+### 1. 全局 API 变更
 
 **Vue 2:**
 ```javascript
@@ -29,7 +29,7 @@ app.component('MyComponent', MyComponent)
 app.mount('#app')
 ```
 
-### 2. Reactivity System
+### 2. 响应式系统
 
 **Vue 2:**
 ```javascript
@@ -58,8 +58,11 @@ export default {
     const count = ref(0)
     const user = reactive({ name: 'EVA' })
     
+    /**
+     * 直接新增属性
+     */
     const addProperty = () => {
-      // ✅ 直接新增屬性
+      // ✅ 直接新增属性
       user.age = 25
     }
     
@@ -68,14 +71,14 @@ export default {
 }
 ```
 
-### 3. v-model Changes
+### 3. v-model 变更
 
 **Vue 2:**
 ```vue
-<!-- 父元件 -->
+<!-- 父组件 -->
 <MyInput v-model="text" />
 
-<!-- 子元件 -->
+<!-- 子组件 -->
 <template>
   <input :value="value" @input="$emit('input', $event.target.value)" />
 </template>
@@ -89,10 +92,10 @@ export default {
 
 **Vue 3:**
 ```vue
-<!-- 父元件 -->
+<!-- 父组件 -->
 <MyInput v-model="text" />
 
-<!-- 子元件 -->
+<!-- 子组件 -->
 <template>
   <input :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" />
 </template>
@@ -105,14 +108,14 @@ export default {
 </script>
 ```
 
-### 4. Multiple v-model Support
+### 4. 多重 v-model 支持
 
 **Vue 3 新功能:**
 ```vue
-<!-- 父元件 -->
+<!-- 父组件 -->
 <UserForm v-model:name="userName" v-model:email="userEmail" />
 
-<!-- 子元件 -->
+<!-- 子组件 -->
 <script setup>
 defineProps(['name', 'email'])
 const emit = defineEmits(['update:name', 'update:email'])
@@ -124,7 +127,7 @@ const emit = defineEmits(['update:name', 'update:email'])
 </template>
 ```
 
-### 5. Filters Removed
+### 5. 过滤器移除
 
 **Vue 2:**
 ```vue
@@ -150,13 +153,18 @@ export default {
 </template>
 
 <script setup>
+/**
+ * 格式化货币
+ * @param {number} value - 金额
+ * @returns {string} 格式化后的金额
+ */
 const formatCurrency = (value) => {
   return '$' + value.toFixed(2)
 }
 </script>
 ```
 
-### 6. Event Bus Removed
+### 6. Event Bus 移除
 
 **Vue 2:**
 ```javascript
@@ -182,10 +190,10 @@ emitter.emit('event-name', data)
 // ComponentB.vue
 emitter.on('event-name', (data) => {})
 
-// Or use Pinia for state management
+// 或者使用 Pinia 进行状态管理
 ```
 
-### 7. Async Component Syntax
+### 7. 异步组件语法
 
 **Vue 2:**
 ```javascript
@@ -201,7 +209,7 @@ const AsyncComponent = defineAsyncComponent(() =>
 )
 ```
 
-### 8. Functional Components
+### 8. 函数式组件
 
 **Vue 2:**
 ```vue
@@ -228,7 +236,7 @@ defineProps(['msg'])
 </template>
 ```
 
-### 9. Lifecycle Hooks in Composition API
+### 9. Composition API 中的生命周期钩子
 
 **Vue 2 Options API → Vue 3 Composition API:**
 ```javascript
@@ -248,7 +256,7 @@ export default {
 import { onBeforeMount, onMounted, onBeforeUpdate, onUpdated, onBeforeUnmount, onUnmounted } from 'vue'
 
 setup() {
-  // beforeCreate & created 的邏輯直接放在 setup() 中
+  // beforeCreate & created 的逻辑直接放在 setup() 中
   
   onBeforeMount(() => {})
   onMounted(() => {})
@@ -259,7 +267,7 @@ setup() {
 }
 ```
 
-### 10. $attrs Behavior Change
+### 10. $attrs 行为变更
 
 **Vue 2:**
 ```javascript
@@ -273,7 +281,7 @@ this.$attrs // { id: 'foo' }
 this.$attrs // { class: 'bar', style: {...}, id: 'foo' }
 ```
 
-### 11. Key Usage Change
+### 11. Key 使用变更
 
 **Vue 2:**
 ```vue
@@ -285,31 +293,31 @@ this.$attrs // { class: 'bar', style: {...}, id: 'foo' }
 
 **Vue 3:**
 ```vue
-<!-- key 應該放在 template 上 -->
+<!-- key 应该放在 template 上 -->
 <template v-for="item in items" :key="item.id">
   <div>{{ item.name }}</div>
   <span>{{ item.desc }}</span>
 </template>
 ```
 
-## Migration Checklist
+## 迁移清单
 
 - [ ] 更新 Vue 版本到 3.x
-- [ ] 將 `new Vue()` 改為 `createApp()`
-- [ ] 更新全域 API 呼叫 (Vue.use → app.use)
+- [ ] 将 `new Vue()` 改为 `createApp()`
+- [ ] 更新全局 API 调用 (Vue.use → app.use)
 - [ ] 移除 filters,改用 computed 或 methods
 - [ ] 移除 Event Bus,改用 mitt 或 Pinia
 - [ ] 更新 v-model 用法 (value → modelValue, input → update:modelValue)
-- [ ] 檢查並更新生命週期 hook 名稱
+- [ ] 检查并更新生命周期 hook 名称
 - [ ] 更新 functional components
-- [ ] 檢查 $attrs 的使用
-- [ ] 檢查 template 上的 key 使用
+- [ ] 检查 $attrs 的使用
+- [ ] 检查 template 上的 key 使用
 - [ ] 更新 async components
-- [ ] 測試響應式系統的行為變化
+- [ ] 测试响应式系统的行为变化
 
-## Common Migration Patterns
+## 常见迁移模式
 
-### Pattern 1: Options API to Composition API
+### 模式 1: Options API 到 Composition API
 
 **Before:**
 ```vue
@@ -348,6 +356,9 @@ const loading = ref(false)
 
 const doubleCount = computed(() => count.value * 2)
 
+/**
+ * 增加计数
+ */
 const increment = () => {
   count.value++
 }
@@ -358,7 +369,7 @@ onMounted(() => {
 </script>
 ```
 
-### Pattern 2: Vuex to Pinia
+### 模式 2: Vuex 到 Pinia
 
 **Vuex (Vue 2):**
 ```javascript
@@ -402,6 +413,10 @@ export const useUserStore = defineStore('user', {
     isLoggedIn: (state) => !!state.user
   },
   actions: {
+    /**
+     * 用户登录
+     * @param {Object} credentials - 登录凭证
+     */
     async login(credentials) {
       this.user = await api.login(credentials)
     }

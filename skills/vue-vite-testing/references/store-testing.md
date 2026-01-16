@@ -1,8 +1,8 @@
-# Pinia Store Testing Patterns
+# Pinia Store 测试模式
 
-## Basic Store Testing
+## 基础 Store 测试
 
-### Testing State and Getters
+### 测试 State 和 Getters
 
 ```typescript
 import { setActivePinia, createPinia } from 'pinia';
@@ -13,7 +13,7 @@ describe('useUserStore - State and Getters', () => {
     setActivePinia(createPinia());
   });
 
-  it('should initialize with default state', () => {
+  it('应该使用默认 state 初始化', () => {
     const store = useUserStore();
     
     expect(store.user).toBeNull();
@@ -21,7 +21,7 @@ describe('useUserStore - State and Getters', () => {
     expect(store.token).toBe('');
   });
 
-  it('should compute isAuthenticated getter', () => {
+  it('应该计算 isAuthenticated getter', () => {
     const store = useUserStore();
     
     expect(store.isAuthenticated).toBe(false);
@@ -32,7 +32,7 @@ describe('useUserStore - State and Getters', () => {
     expect(store.isAuthenticated).toBe(true);
   });
 
-  it('should compute fullName getter from user data', () => {
+  it('应该从用户数据计算 fullName getter', () => {
     const store = useUserStore();
     
     store.user = {
@@ -46,7 +46,7 @@ describe('useUserStore - State and Getters', () => {
 });
 ```
 
-### Testing Actions
+### 测试 Actions
 
 ```typescript
 import { setActivePinia, createPinia } from 'pinia';
@@ -58,7 +58,7 @@ describe('useUserStore - Actions', () => {
     global.fetch = vi.fn();
   });
 
-  it('should login successfully', async () => {
+  it('应该成功登录', async () => {
     const mockUser = { id: 1, name: 'John Doe' };
     const mockToken = 'token123';
     
@@ -76,7 +76,7 @@ describe('useUserStore - Actions', () => {
     expect(store.isAuthenticated).toBe(true);
   });
 
-  it('should handle login failure', async () => {
+  it('应该处理登录失败', async () => {
     (global.fetch as any).mockResolvedValue({
       ok: false,
       status: 401,
@@ -93,10 +93,10 @@ describe('useUserStore - Actions', () => {
     expect(store.isAuthenticated).toBe(false);
   });
 
-  it('should logout and clear state', () => {
+  it('应该注销并清除 state', () => {
     const store = useUserStore();
     
-    // Set initial state
+    // 设置初始 state
     store.user = { id: 1, name: 'John Doe' };
     store.token = 'token123';
     
@@ -107,7 +107,7 @@ describe('useUserStore - Actions', () => {
     expect(store.isAuthenticated).toBe(false);
   });
 
-  it('should update user profile', async () => {
+  it('应该更新用户资料', async () => {
     (global.fetch as any).mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({ id: 1, name: 'Jane Doe', email: 'jane@example.com' })
@@ -124,7 +124,7 @@ describe('useUserStore - Actions', () => {
 });
 ```
 
-### Testing Store with Multiple Dependencies
+### 测试带有多个依赖的 Store
 
 ```typescript
 import { setActivePinia, createPinia } from 'pinia';
@@ -136,7 +136,7 @@ describe('useCartStore with Dependencies', () => {
     setActivePinia(createPinia());
   });
 
-  it('should add product to cart', () => {
+  it('应该添加产品到购物车', () => {
     const productStore = useProductStore();
     const cartStore = useCartStore();
     
@@ -153,7 +153,7 @@ describe('useCartStore with Dependencies', () => {
     });
   });
 
-  it('should calculate total from cart items', () => {
+  it('应该计算购物车项目总价', () => {
     const cartStore = useCartStore();
     
     cartStore.items = [
@@ -164,7 +164,7 @@ describe('useCartStore with Dependencies', () => {
     expect(cartStore.total).toBe(250);
   });
 
-  it('should remove item from cart', () => {
+  it('应该从购物车移除项目', () => {
     const cartStore = useCartStore();
     
     cartStore.items = [
@@ -178,7 +178,7 @@ describe('useCartStore with Dependencies', () => {
     expect(cartStore.items[0].productId).toBe(2);
   });
 
-  it('should clear cart', () => {
+  it('应该清空购物车', () => {
     const cartStore = useCartStore();
     
     cartStore.items = [
@@ -193,7 +193,7 @@ describe('useCartStore with Dependencies', () => {
 });
 ```
 
-### Testing Store Persistence
+### 测试 Store 持久化
 
 ```typescript
 import { setActivePinia, createPinia } from 'pinia';
@@ -205,7 +205,7 @@ describe('useSettingsStore - Persistence', () => {
     localStorage.clear();
   });
 
-  it('should load settings from localStorage', () => {
+  it('应该从 localStorage 加载设置', () => {
     localStorage.setItem('settings', JSON.stringify({
       theme: 'dark',
       language: 'zh-TW'
@@ -217,7 +217,7 @@ describe('useSettingsStore - Persistence', () => {
     expect(store.language).toBe('zh-TW');
   });
 
-  it('should save settings to localStorage on change', () => {
+  it('更改时应该保存设置到 localStorage', () => {
     const store = useSettingsStore();
     
     store.updateTheme('dark');
@@ -226,19 +226,19 @@ describe('useSettingsStore - Persistence', () => {
     expect(JSON.parse(saved!).theme).toBe('dark');
   });
 
-  it('should handle corrupted localStorage data', () => {
+  it('应该处理损坏的 localStorage 数据', () => {
     localStorage.setItem('settings', 'invalid-json');
     
     const store = useSettingsStore();
     
-    // Should fallback to default values
+    // 应该回退到默认值
     expect(store.theme).toBe('light');
     expect(store.language).toBe('en');
   });
 });
 ```
 
-### Testing Async Store Actions
+### 测试异步 Store Actions
 
 ```typescript
 import { setActivePinia, createPinia } from 'pinia';
@@ -251,7 +251,7 @@ describe('usePostStore - Async Actions', () => {
     global.fetch = vi.fn();
   });
 
-  it('should fetch posts successfully', async () => {
+  it('应该成功获取帖子', async () => {
     const mockPosts = [
       { id: 1, title: 'Post 1' },
       { id: 2, title: 'Post 2' }
@@ -277,7 +277,7 @@ describe('usePostStore - Async Actions', () => {
     expect(store.error).toBeNull();
   });
 
-  it('should handle fetch errors', async () => {
+  it('应该处理获取错误', async () => {
     (global.fetch as any).mockRejectedValue(new Error('Network error'));
     
     const store = usePostStore();
@@ -289,7 +289,7 @@ describe('usePostStore - Async Actions', () => {
     expect(store.error).toBe('Network error');
   });
 
-  it('should create new post', async () => {
+  it('应该创建新帖子', async () => {
     const newPost = { title: 'New Post', content: 'Content' };
     const createdPost = { id: 1, ...newPost };
     
@@ -312,7 +312,7 @@ describe('usePostStore - Async Actions', () => {
     );
   });
 
-  it('should update existing post', async () => {
+  it('应该更新现有帖子', async () => {
     const store = usePostStore();
     store.posts = [
       { id: 1, title: 'Old Title', content: 'Old Content' }
@@ -330,7 +330,7 @@ describe('usePostStore - Async Actions', () => {
     expect(store.posts[0]).toEqual(updatedPost);
   });
 
-  it('should delete post', async () => {
+  it('应该删除帖子', async () => {
     const store = usePostStore();
     store.posts = [
       { id: 1, title: 'Post 1' },
@@ -347,14 +347,14 @@ describe('usePostStore - Async Actions', () => {
 });
 ```
 
-### Testing Store State Hydration
+### 测试 Store State 水合 (Hydration)
 
 ```typescript
 import { setActivePinia, createPinia } from 'pinia';
 import { useHydratedStore } from '@/stores/hydrated';
 
 describe('useHydratedStore - Hydration', () => {
-  it('should hydrate store from server state', () => {
+  it('应该从服务器 state 水合 store', () => {
     const serverState = {
       user: { id: 1, name: 'John' },
       settings: { theme: 'dark' }
@@ -372,7 +372,7 @@ describe('useHydratedStore - Hydration', () => {
 });
 ```
 
-### Testing Store Subscriptions
+### 测试 Store 订阅
 
 ```typescript
 import { setActivePinia, createPinia } from 'pinia';
@@ -383,7 +383,7 @@ describe('useNotificationStore - Subscriptions', () => {
     setActivePinia(createPinia());
   });
 
-  it('should trigger subscription on state change', () => {
+  it('state 改变时应该触发订阅', () => {
     const store = useNotificationStore();
     const subscriber = vi.fn();
     
@@ -394,7 +394,7 @@ describe('useNotificationStore - Subscriptions', () => {
     expect(subscriber).toHaveBeenCalled();
   });
 
-  it('should pass mutation details to subscriber', () => {
+  it('应该将 mutation 详情传递给订阅者', () => {
     const store = useNotificationStore();
     const subscriber = vi.fn();
     
@@ -415,7 +415,7 @@ describe('useNotificationStore - Subscriptions', () => {
     );
   });
 
-  it('should support detached subscription', () => {
+  it('应该支持分离的订阅 (detached subscription)', () => {
     const store = useNotificationStore();
     const subscriber = vi.fn();
     
@@ -429,12 +429,12 @@ describe('useNotificationStore - Subscriptions', () => {
     
     store.addNotification({ id: 2, message: 'Test 2' });
     
-    expect(subscriber).toHaveBeenCalledTimes(1); // Not called after unsubscribe
+    expect(subscriber).toHaveBeenCalledTimes(1); // 取消订阅后不应再调用
   });
 });
 ```
 
-### Testing Store with Options API
+### 测试 Options API Store
 
 ```typescript
 import { setActivePinia, createPinia } from 'pinia';
@@ -459,7 +459,7 @@ describe('Options API Store', () => {
     setActivePinia(createPinia());
   });
 
-  it('should work with options API', () => {
+  it('应该能与 Options API 配合工作', () => {
     const store = useCounterStore();
     
     expect(store.count).toBe(0);
@@ -473,7 +473,7 @@ describe('Options API Store', () => {
 });
 ```
 
-### Testing Store Reset
+### 测试 Store 重置
 
 ```typescript
 import { setActivePinia, createPinia } from 'pinia';
@@ -484,16 +484,16 @@ describe('useUserStore - Reset', () => {
     setActivePinia(createPinia());
   });
 
-  it('should reset store to initial state', () => {
+  it('应该将 store 重置为初始 state', () => {
     const store = useUserStore();
     
-    // Modify state
+    // 修改 state
     store.user = { id: 1, name: 'John' };
     store.token = 'token123';
     
     expect(store.user).not.toBeNull();
     
-    // Reset
+    // 重置
     store.$reset();
     
     expect(store.user).toBeNull();
@@ -502,7 +502,7 @@ describe('useUserStore - Reset', () => {
 });
 ```
 
-## Testing Stores in Components
+## 在组件中测试 Stores
 
 ```typescript
 import { mount } from '@vue/test-utils';
@@ -515,7 +515,7 @@ describe('UserProfile with Store', () => {
     setActivePinia(createPinia());
   });
 
-  it('should display user data from store', () => {
+  it('应该显示 store 中的用户数据', () => {
     const store = useUserStore();
     store.user = { id: 1, name: 'John Doe', email: 'john@example.com' };
     
@@ -525,7 +525,7 @@ describe('UserProfile with Store', () => {
     expect(wrapper.text()).toContain('john@example.com');
   });
 
-  it('should call store action on button click', async () => {
+  it('点击按钮时应该调用 store action', async () => {
     const store = useUserStore();
     const logoutSpy = vi.spyOn(store, 'logout');
     
@@ -536,7 +536,7 @@ describe('UserProfile with Store', () => {
     expect(logoutSpy).toHaveBeenCalled();
   });
 
-  it('should react to store state changes', async () => {
+  it('应该对 store state 变化做出反应', async () => {
     const store = useUserStore();
     
     const wrapper = mount(UserProfile);

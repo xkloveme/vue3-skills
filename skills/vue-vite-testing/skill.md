@@ -1,98 +1,98 @@
 ---
 name: vue-vite-testing
-description: Comprehensive unit testing guide for Vue 3 + Vite projects using Vitest and Vue Test Utils. Use when writing or reviewing unit tests for Vue components, composables, Pinia stores, or TypeScript/JavaScript utilities in Vite-based projects. Covers test structure, best practices, mocking strategies, and Vue-specific testing patterns.
+description: 使用 Vitest 和 Vue Test Utils 的 Vue 3 + Vite 项目的综合单元测试指南。适用于编写或审查 Vue 组件、Composables、Pinia Stores 或 Vite 项目中的 TypeScript/JavaScript 工具函数的单元测试。涵盖测试结构、最佳实践、Mock 策略和 Vue 特定的测试模式。
 ---
 
-# Vue + Vite Unit Testing
+# Vue + Vite 单元测试
 
-## Overview
+## 概述
 
-Generate comprehensive, production-ready unit tests for Vue 3 + Vite projects using Vitest framework. Follow industry best practices for testing Vue components, composables, Pinia stores, and TypeScript utilities with proper isolation, mocking, and edge case coverage.
+使用 Vitest 框架为 Vue 3 + Vite 项目生成全面的、生产就绪的单元测试。遵循行业最佳实践，对 Vue 组件、Composables、Pinia Stores 和 TypeScript 工具函数进行测试，确保适当的隔离、Mock 和边界情况覆盖。
 
-## Testing Framework Setup
+## 测试框架设置
 
-**Primary Stack:**
-- **Vitest**: Fast unit test framework built for Vite
-- **Vue Test Utils**: Official testing utility library for Vue components
-- **@vitest/ui**: Optional UI for test visualization
+**主要技术栈:**
+- **Vitest**: 专为 Vite 构建的快速单元测试框架
+- **Vue Test Utils**: Vue 组件的官方测试实用程序库
+- **@vitest/ui**: 可选的测试可视化 UI
 
-**Import pattern:**
+**导入模式:**
 ```typescript
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mount, shallowMount } from '@vue/test-utils';
 ```
 
-## Testing Workflow
+## 测试工作流
 
-Follow this systematic approach for all testing tasks:
+所有测试任务请遵循此系统方法：
 
-### 1. Code Analysis Phase
+### 1. 代码分析阶段
 
-**Before writing any tests:**
-- Analyze the code structure and identify all public interfaces
-- Identify external dependencies (APIs, stores, composables, modules)
-- Note all possible code paths, conditions, and edge cases
-- Ask clarifying questions about:
-  - Missing type definitions or constants
-  - Unclear business logic or validation rules
-  - External API contracts or data structures
-  - Expected error handling behaviors
+**在编写任何测试之前:**
+- 分析代码结构并确定所有公共接口
+- 确定外部依赖（API、Stores、Composables、模块）
+- 记录所有可能的代码路径、条件和边缘情况
+- 针对以下内容提出澄清问题：
+  - 缺失的类型定义或常量
+  - 不清楚的业务逻辑或验证规则
+  - 外部 API 契约或数据结构
+  - 预期的错误处理行为
 
-**Only proceed to writing tests after full code understanding.**
+**只有在完全理解代码后才开始编写测试。**
 
-### 2. Test Design Phase
+### 2. 测试设计阶段
 
-**Plan test coverage:**
-- Happy path scenarios (expected inputs and outputs)
-- Error handling and failure modes
-- Edge cases (empty arrays, null values, boundary conditions)
-- Async operations (loading, success, error states)
-- User interactions (clicks, inputs, form submissions)
-- Lifecycle hooks and reactivity
+**规划测试覆盖:**
+- 快乐路径场景（预期的输入和输出）
+- 错误处理和失败模式
+- 边缘情况（空数组、null 值、边界条件）
+- 异步操作（加载中、成功、错误状态）
+- 用户交互（点击、输入、表单提交）
+- 生命周期钩子和响应式
 
-**For Vue components, identify:**
-- Props validation and default values
-- Emitted events and their payloads
-- Slots usage and content projection
-- Computed properties and watchers
-- Component lifecycle behavior
+**对于 Vue 组件，确定:**
+- Props 验证和默认值
+- 触发的事件及其负载 (payloads)
+- 插槽使用和内容投影
+- 计算属性和侦听器
+- 组件生命周期行为
 
-**For composables, identify:**
-- Input parameters and return values
-- State management and reactivity
-- Side effects (API calls, localStorage, timers)
-- Cleanup requirements
+**对于 Composables，确定:**
+- 输入参数和返回值
+- 状态管理和响应式
+- 副作用（API 调用、localStorage、定时器）
+- 清理要求
 
-## Test Structure Standards
+## 测试结构标准
 
-### Standard Test Template
+### 标准测试模板
 
 ```typescript
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 describe('ModuleName or ComponentName', () => {
-  // Top-level test variables
+  // 顶层测试变量
   let mockDependency: MockType;
   
   beforeEach(() => {
-    // Reset state before each test
+    // 每次测试前重置状态
     mockDependency = createMockDependency();
   });
 
   afterEach(() => {
-    // Cleanup after each test
+    // 每次测试后清理
     vi.clearAllMocks();
   });
 
   describe('method or feature name', () => {
     it('should handle happy path scenario', () => {
-      // Arrange: Set up test data and mocks
+      // Arrange: 设置测试数据和 Mock
       const input = { /* test data */ };
       
-      // Act: Execute the code under test
+      // Act: 执行被测代码
       const result = functionUnderTest(input);
       
-      // Assert: Verify expected outcomes
+      // Assert: 验证预期结果
       expect(result).toBe(expectedValue);
     });
 
@@ -105,40 +105,40 @@ describe('ModuleName or ComponentName', () => {
     });
 
     it('should handle edge case: empty input', () => {
-      // Test edge cases
+      // 测试边缘情况
       expect(functionUnderTest([])).toEqual([]);
     });
   });
 });
 ```
 
-### AAA Pattern (Arrange-Act-Assert)
+### AAA 模式 (Arrange-Act-Assert)
 
-**Always structure individual tests using AAA:**
+**始终使用 AAA 结构化单个测试:**
 
 ```typescript
 it('should calculate total price correctly', () => {
-  // Arrange: Set up test data
+  // Arrange: 设置测试数据
   const items = [
     { price: 100, quantity: 2 },
     { price: 50, quantity: 1 }
   ];
   
-  // Act: Execute the function
+  // Act: 执行函数
   const total = calculateTotal(items);
   
-  // Assert: Verify the result
+  // Assert: 验证结果
   expect(total).toBe(250);
 });
 ```
 
-## Vue-Specific Testing Patterns
+## Vue 特定测试模式
 
-### 1. Component Testing
+### 1. 组件测试
 
-**Decide between mount vs shallowMount:**
-- Use `mount()` for integration testing with child components
-- Use `shallowMount()` for isolated unit testing (stubs child components)
+**在 mount 和 shallowMount 之间选择:**
+- 使用 `mount()` 进行包含子组件的集成测试
+- 使用 `shallowMount()` 进行隔离单元测试（存根子组件）
 
 ```typescript
 import { mount } from '@vue/test-utils';
@@ -180,9 +180,9 @@ describe('MyComponent', () => {
 });
 ```
 
-**See `references/component-testing.md` for complete component testing patterns including slots, provide/inject, and async components.**
+**详见 `references/component-testing.md` 了解完整的组件测试模式，包括插槽、provide/inject 和异步组件。**
 
-### 2. Composables Testing
+### 2. Composables 测试
 
 ```typescript
 import { composableUnderTest } from './useFeature';
@@ -218,9 +218,7 @@ describe('useFeature composable', () => {
 });
 ```
 
-**See `references/composables-testing.md` for advanced composable testing patterns including side effects and cleanup.**
-
-### 3. Pinia Store Testing
+### 3. Pinia Store 测试
 
 ```typescript
 import { setActivePinia, createPinia } from 'pinia';
@@ -258,11 +256,11 @@ describe('myStore', () => {
 });
 ```
 
-**See `references/store-testing.md` for Pinia store testing patterns including getters, mutations, and actions.**
+**详见 `references/store-testing.md` 了解 Pinia Store 测试模式，包括 Getters、Mutations 和 Actions。**
 
-## Mocking Strategies
+## Mock 策略
 
-### External Dependencies
+### 外部依赖
 
 ```typescript
 // Mock API calls
@@ -296,7 +294,7 @@ const wrapper = mount(Component, {
 });
 ```
 
-### Timers and Delays
+### 定时器和延迟
 
 ```typescript
 import { vi } from 'vitest';
@@ -324,25 +322,25 @@ describe('setTimeout behavior', () => {
 });
 ```
 
-## Testing Best Practices
+## 测试最佳实践
 
-### 1. Test Isolation
-- Each test should be independent and not rely on other tests
-- Use `beforeEach` to reset state
-- Clean up mocks with `vi.clearAllMocks()` or `vi.resetAllMocks()`
+### 1. 测试隔离
+- 每个测试应该是独立的，不依赖于其他测试
+- 使用 `beforeEach` 重置状态
+- 使用 `vi.clearAllMocks()` 或 `vi.resetAllMocks()` 清理 Mocks
 
-### 2. Descriptive Test Names
+### 2. 描述性的测试名称
 ```typescript
-// ✅ Good: Clear and descriptive
+// ✅ Good: 清晰且具描述性
 it('should display error message when API request fails', () => {});
 
-// ❌ Bad: Vague and unclear
+// ❌ Bad: 模糊且不清楚
 it('should work', () => {});
 ```
 
-### 3. Avoid Test Logic
+### 3. 避免测试逻辑
 ```typescript
-// ❌ Bad: Contains loops and conditions
+// ❌ Bad: 包含循环和条件
 it('should validate all items', () => {
   for (const item of items) {
     if (item.type === 'special') {
@@ -351,7 +349,7 @@ it('should validate all items', () => {
   }
 });
 
-// ✅ Good: Simple and direct
+// ✅ Good: 简单直接
 it('should validate special item', () => {
   const specialItem = { type: 'special', value: 100 };
   expect(validate(specialItem)).toBe(true);
@@ -363,41 +361,41 @@ it('should validate normal item', () => {
 });
 ```
 
-### 4. Test Coverage Priority
-1. **Critical business logic** (payment, authentication, data validation)
-2. **Complex algorithms** (calculations, transformations)
-3. **Error handling** (edge cases, failure modes)
-4. **User interactions** (forms, buttons, navigation)
-5. **Integration points** (API calls, external services)
+### 4. 测试覆盖优先级
+1. **关键业务逻辑**（支付、认证、数据验证）
+2. **复杂算法**（计算、转换）
+3. **错误处理**（边缘情况、失败模式）
+4. **用户交互**（表单、按钮、导航）
+5. **集成点**（API 调用、外部服务）
 
-### 5. Async Testing
+### 5. 异步测试
 ```typescript
-// ✅ Properly handle async operations
+// ✅ 正确处理异步操作
 it('should fetch data successfully', async () => {
   const result = await fetchData();
   expect(result).toBeDefined();
 });
 
-// ✅ Use resolves/rejects for promises
+// ✅ 对 Promise 使用 resolves/rejects
 await expect(fetchData()).resolves.toEqual(expectedData);
 await expect(failingOperation()).rejects.toThrow('Error message');
 ```
 
-## Complete Test Deliverables
+## 完整的测试交付物
 
-When generating tests, always provide:
+生成测试时，始终提供：
 
-1. **Complete test suites** - No placeholders or "// TODO" comments
-2. **All edge cases covered** - Empty inputs, null values, boundaries
-3. **Proper imports** - All necessary test utilities and dependencies
-4. **Appropriate mocks** - For external dependencies and side effects
-5. **Clear test descriptions** - Self-documenting test names
-6. **Proper cleanup** - afterEach hooks where needed
+1. **完整的测试套件** - 没有占位符或 "// TODO" 注释
+2. **所有边缘情况覆盖** - 空输入、null 值、边界
+3. **正确的导入** - 所有必要的测试实用程序和依赖项
+4. **适当的 Mocks** - 用于外部依赖和副作用
+5. **清晰的测试描述** - 自文档化的测试名称
+6. **适当的清理** - 需要时使用 afterEach 钩子
 
-## Reference Files
+## 参考文件
 
-For detailed examples and advanced patterns:
+有关详细示例和高级模式：
 
-- **`references/component-testing.md`** - Comprehensive component testing patterns (slots, teleport, provide/inject, async components)
-- **`references/composables-testing.md`** - Advanced composable testing (side effects, watchers, cleanup)
-- **`references/store-testing.md`** - Pinia store testing patterns (getters, actions, state management)
+- **`references/component-testing.md`** - 全面的组件测试模式（插槽、teleport、provide/inject、异步组件）
+- **`references/composables-testing.md`** - 高级 Composable 测试（副作用、watchers、清理）
+- **`references/store-testing.md`** - Pinia Store 测试模式（getters、actions、状态管理）

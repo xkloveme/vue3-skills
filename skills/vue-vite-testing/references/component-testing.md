@@ -1,15 +1,15 @@
-# Vue Component Testing Patterns
+# Vue 组件测试模式
 
-## Complete Component Testing Examples
+## 完整的组件测试示例
 
-### Testing Props and Validation
+### 测试 Props 和验证
 
 ```typescript
 import { mount } from '@vue/test-utils';
 import UserProfile from '@/components/UserProfile.vue';
 
 describe('UserProfile - Props', () => {
-  it('should render with required props', () => {
+  it('应该使用必需的 props 渲染', () => {
     const wrapper = mount(UserProfile, {
       props: {
         username: 'john_doe',
@@ -21,40 +21,40 @@ describe('UserProfile - Props', () => {
     expect(wrapper.find('.email').text()).toBe('john@example.com');
   });
 
-  it('should apply default props when not provided', () => {
+  it('未提供 props 时应该应用默认值', () => {
     const wrapper = mount(UserProfile, {
       props: {
         username: 'john_doe'
-        // email not provided, should use default
+        // email 未提供，应该使用默认值
       }
     });
     
     expect(wrapper.find('.email').text()).toBe('');
   });
 
-  it('should validate prop types during development', () => {
-    // Vitest will show warnings for invalid prop types in development
+  it('开发环境下应该验证 prop 类型', () => {
+    // Vitest 会在开发环境下显示无效 prop 类型的警告
     const wrapper = mount(UserProfile, {
       props: {
-        username: 123, // Should be string
+        username: 123, // 应该是字符串
         email: 'john@example.com'
       }
     });
     
-    // Component should still render with type coercion
+    // 组件仍应通过类型强制转换进行渲染
     expect(wrapper.exists()).toBe(true);
   });
 });
 ```
 
-### Testing Emitted Events
+### 测试发射的事件 (Emitted Events)
 
 ```typescript
 import { mount } from '@vue/test-utils';
 import SearchInput from '@/components/SearchInput.vue';
 
 describe('SearchInput - Events', () => {
-  it('should emit search event with query on submit', async () => {
+  it('提交时应该发射带有查询参数的 search 事件', async () => {
     const wrapper = mount(SearchInput);
     
     await wrapper.find('input').setValue('test query');
@@ -64,7 +64,7 @@ describe('SearchInput - Events', () => {
     expect(wrapper.emitted('search')?.[0]).toEqual(['test query']);
   });
 
-  it('should emit update:modelValue for v-model', async () => {
+  it('v-model 应该发射 update:modelValue 事件', async () => {
     const wrapper = mount(SearchInput, {
       props: {
         modelValue: 'initial'
@@ -77,7 +77,7 @@ describe('SearchInput - Events', () => {
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['updated value']);
   });
 
-  it('should emit multiple events in sequence', async () => {
+  it('应该按顺序发射多个事件', async () => {
     const wrapper = mount(SearchInput);
     
     await wrapper.find('input').setValue('a');
@@ -93,14 +93,14 @@ describe('SearchInput - Events', () => {
 });
 ```
 
-### Testing Slots
+### 测试插槽 (Slots)
 
 ```typescript
 import { mount } from '@vue/test-utils';
 import Card from '@/components/Card.vue';
 
 describe('Card - Slots', () => {
-  it('should render default slot content', () => {
+  it('应该渲染默认插槽内容', () => {
     const wrapper = mount(Card, {
       slots: {
         default: '<p>Card content</p>'
@@ -110,7 +110,7 @@ describe('Card - Slots', () => {
     expect(wrapper.html()).toContain('Card content');
   });
 
-  it('should render named slots', () => {
+  it('应该渲染具名插槽', () => {
     const wrapper = mount(Card, {
       slots: {
         header: '<h2>Card Title</h2>',
@@ -124,7 +124,7 @@ describe('Card - Slots', () => {
     expect(wrapper.find('.card-footer').html()).toContain('Action');
   });
 
-  it('should render scoped slot with props', () => {
+  it('应该渲染带有 props 的作用域插槽', () => {
     const wrapper = mount(Card, {
       slots: {
         default: `
@@ -138,11 +138,11 @@ describe('Card - Slots', () => {
     expect(wrapper.find('.data-value').exists()).toBe(true);
   });
 
-  it('should handle conditional slot rendering', () => {
+  it('应该处理条件插槽渲染', () => {
     const wrapper = mount(Card, {
       slots: {
         header: '<h2>Title</h2>'
-        // no footer slot provided
+        // 未提供 footer 插槽
       }
     });
     
@@ -152,7 +152,7 @@ describe('Card - Slots', () => {
 });
 ```
 
-### Testing Provide/Inject
+### 测试 Provide/Inject
 
 ```typescript
 import { mount } from '@vue/test-utils';
@@ -160,7 +160,7 @@ import ParentComponent from '@/components/ParentComponent.vue';
 import ChildComponent from '@/components/ChildComponent.vue';
 
 describe('Provide/Inject', () => {
-  it('should provide values to child components', () => {
+  it('应该向子组件提供值', () => {
     const wrapper = mount(ParentComponent, {
       global: {
         provide: {
@@ -175,7 +175,7 @@ describe('Provide/Inject', () => {
     expect(child.vm.language).toBe('en');
   });
 
-  it('should test child component with injected dependencies', () => {
+  it('应该测试带有注入依赖的子组件', () => {
     const wrapper = mount(ChildComponent, {
       global: {
         provide: {
@@ -192,21 +192,21 @@ describe('Provide/Inject', () => {
 });
 ```
 
-### Testing Async Components
+### 测试异步组件 (Async Components)
 
 ```typescript
 import { mount, flushPromises } from '@vue/test-utils';
 import AsyncDataList from '@/components/AsyncDataList.vue';
 
 describe('AsyncDataList', () => {
-  it('should show loading state initially', () => {
+  it('初始状态应该显示 loading', () => {
     const wrapper = mount(AsyncDataList);
     
     expect(wrapper.find('.loading').exists()).toBe(true);
     expect(wrapper.find('.data-list').exists()).toBe(false);
   });
 
-  it('should display data after loading', async () => {
+  it('加载完成后应该显示数据', async () => {
     const mockData = [
       { id: 1, name: 'Item 1' },
       { id: 2, name: 'Item 2' }
@@ -224,7 +224,7 @@ describe('AsyncDataList', () => {
     expect(wrapper.findAll('.data-item')).toHaveLength(2);
   });
 
-  it('should handle API errors gracefully', async () => {
+  it('应该优雅地处理 API 错误', async () => {
     global.fetch = vi.fn().mockRejectedValue(new Error('API Error'));
     
     const wrapper = mount(AsyncDataList);
@@ -237,7 +237,7 @@ describe('AsyncDataList', () => {
 });
 ```
 
-### Testing Teleport Components
+### 测试 Teleport 组件
 
 ```typescript
 import { mount } from '@vue/test-utils';
@@ -245,18 +245,18 @@ import ModalDialog from '@/components/ModalDialog.vue';
 
 describe('ModalDialog with Teleport', () => {
   beforeEach(() => {
-    // Create teleport target
+    // 创建 teleport 目标
     const el = document.createElement('div');
     el.id = 'modal-target';
     document.body.appendChild(el);
   });
 
   afterEach(() => {
-    // Clean up
+    // 清理
     document.body.innerHTML = '';
   });
 
-  it('should teleport content to target element', async () => {
+  it('应该将内容传送 (teleport) 到目标元素', async () => {
     const wrapper = mount(ModalDialog, {
       props: {
         isOpen: true
@@ -270,7 +270,7 @@ describe('ModalDialog with Teleport', () => {
     expect(target?.innerHTML).toContain('modal-content');
   });
 
-  it('should not render when isOpen is false', async () => {
+  it('isOpen 为 false 时不应该渲染', async () => {
     const wrapper = mount(ModalDialog, {
       props: {
         isOpen: false
@@ -285,14 +285,14 @@ describe('ModalDialog with Teleport', () => {
 });
 ```
 
-### Testing Form Validation
+### 测试表单验证
 
 ```typescript
 import { mount } from '@vue/test-utils';
 import LoginForm from '@/components/LoginForm.vue';
 
 describe('LoginForm - Validation', () => {
-  it('should show validation errors for empty fields', async () => {
+  it('空字段应该显示验证错误', async () => {
     const wrapper = mount(LoginForm);
     
     await wrapper.find('form').trigger('submit');
@@ -301,7 +301,7 @@ describe('LoginForm - Validation', () => {
     expect(wrapper.find('.password-error').text()).toBe('Password is required');
   });
 
-  it('should validate email format', async () => {
+  it('应该验证 email 格式', async () => {
     const wrapper = mount(LoginForm);
     
     await wrapper.find('input[type="email"]').setValue('invalid-email');
@@ -310,21 +310,21 @@ describe('LoginForm - Validation', () => {
     expect(wrapper.find('.email-error').text()).toContain('valid email');
   });
 
-  it('should clear errors when input is valid', async () => {
+  it('输入有效时应该清除错误', async () => {
     const wrapper = mount(LoginForm);
     
-    // Trigger error
+    // 触发错误
     await wrapper.find('form').trigger('submit');
     expect(wrapper.find('.email-error').exists()).toBe(true);
     
-    // Fix input
+    // 修正输入
     await wrapper.find('input[type="email"]').setValue('user@example.com');
     await wrapper.find('input[type="password"]').setValue('password123');
     
     expect(wrapper.find('.email-error').exists()).toBe(false);
   });
 
-  it('should prevent submission with invalid data', async () => {
+  it('数据无效时应该阻止提交', async () => {
     const wrapper = mount(LoginForm);
     const submitHandler = vi.fn();
     
@@ -338,14 +338,14 @@ describe('LoginForm - Validation', () => {
 });
 ```
 
-### Testing Computed Properties and Watchers
+### 测试计算属性和侦听器 (Computed and Watchers)
 
 ```typescript
 import { mount } from '@vue/test-utils';
 import ShoppingCart from '@/components/ShoppingCart.vue';
 
 describe('ShoppingCart - Computed and Watchers', () => {
-  it('should calculate total price from items', () => {
+  it('应该从项目计算总价', () => {
     const wrapper = mount(ShoppingCart, {
       props: {
         items: [
@@ -359,7 +359,7 @@ describe('ShoppingCart - Computed and Watchers', () => {
     expect(wrapper.find('.total').text()).toContain('250');
   });
 
-  it('should update computed value when props change', async () => {
+  it('props 改变时应该更新计算值', async () => {
     const wrapper = mount(ShoppingCart, {
       props: {
         items: [{ id: 1, price: 100, quantity: 1 }]
@@ -378,7 +378,7 @@ describe('ShoppingCart - Computed and Watchers', () => {
     expect(wrapper.vm.totalPrice).toBe(200);
   });
 
-  it('should trigger watcher when quantity changes', async () => {
+  it('数量改变时应该触发侦听器', async () => {
     const wrapper = mount(ShoppingCart);
     const notifySpy = vi.spyOn(wrapper.vm, 'notifyChange');
     
@@ -389,7 +389,7 @@ describe('ShoppingCart - Computed and Watchers', () => {
 });
 ```
 
-## Testing with Global Plugins
+## 测试全局插件
 
 ```typescript
 import { mount } from '@vue/test-utils';
@@ -398,7 +398,7 @@ import { createRouter, createMemoryHistory } from 'vue-router';
 import MyComponent from '@/components/MyComponent.vue';
 
 describe('MyComponent with Global Plugins', () => {
-  it('should work with vue-i18n', () => {
+  it('应该能与 vue-i18n 配合工作', () => {
     const i18n = createI18n({
       legacy: false,
       locale: 'en',
@@ -418,7 +418,7 @@ describe('MyComponent with Global Plugins', () => {
     expect(wrapper.text()).toContain('Hello World');
   });
 
-  it('should work with vue-router', async () => {
+  it('应该能与 vue-router 配合工作', async () => {
     const router = createRouter({
       history: createMemoryHistory(),
       routes: [

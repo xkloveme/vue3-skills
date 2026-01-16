@@ -1,9 +1,9 @@
 import { ref, unref } from 'vue'
 
 /**
- * 通用的資料獲取 composable
+ * 通用的数据获取 composable
  * @param {string | Ref<string>} url - API URL
- * @param {object} options - Fetch 選項
+ * @param {object} options - Fetch 选项
  * @returns {object} - { data, error, loading, execute, refetch }
  */
 export function useFetch(url, options = {}) {
@@ -53,7 +53,7 @@ export function useFetch(url, options = {}) {
 
   const refetch = () => execute()
 
-  // 如果 immediate 為 true,立即執行
+  // 如果 immediate 为 true, 立即执行
   if (options.immediate !== false) {
     execute()
   }
@@ -68,7 +68,7 @@ export function useFetch(url, options = {}) {
 }
 
 /**
- * POST 請求的簡化版本
+ * POST 请求的简化版本
  */
 export function usePost(url, options = {}) {
   return useFetch(url, {
@@ -79,7 +79,7 @@ export function usePost(url, options = {}) {
 }
 
 /**
- * PUT 請求的簡化版本
+ * PUT 请求的简化版本
  */
 export function usePut(url, options = {}) {
   return useFetch(url, {
@@ -90,7 +90,7 @@ export function usePut(url, options = {}) {
 }
 
 /**
- * DELETE 請求的簡化版本
+ * DELETE 请求的简化版本
  */
 export function useDelete(url, options = {}) {
   return useFetch(url, {

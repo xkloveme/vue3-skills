@@ -1,14 +1,14 @@
-# Vue 3 Common Patterns
+# Vue 3 常用模式
 
-## Form Handling Patterns
+## 表单处理模式 (Form Handling Patterns)
 
-### 1. 基本表單處理
+### 1. 基本表单处理
 
 ```vue
 <script setup>
 import { reactive, ref } from 'vue'
 
-// 使用 reactive 處理表單資料
+// 使用 reactive 处理表单数据
 const formData = reactive({
   username: '',
   email: '',
@@ -16,7 +16,7 @@ const formData = reactive({
   agreeToTerms: false
 })
 
-// 或使用多個 ref
+// 或使用多个 ref
 const username = ref('')
 const email = ref('')
 const password = ref('')
@@ -28,11 +28,11 @@ const validateForm = () => {
   errors.value = {}
   
   if (!formData.username) {
-    errors.value.username = '請輸入使用者名稱'
+    errors.value.username = '请输入用户名'
   }
   
   if (!formData.email.includes('@')) {
-    errors.value.email = '請輸入有效的 Email'
+    errors.value.email = '请输入有效的 Email'
   }
   
   return Object.keys(errors.value).length === 0
@@ -44,9 +44,9 @@ const handleSubmit = async () => {
   loading.value = true
   try {
     await submitForm(formData)
-    // 成功處理
+    // 成功处理
   } catch (error) {
-    // 錯誤處理
+    // 错误处理
   } finally {
     loading.value = false
   }
@@ -66,13 +66,13 @@ const handleSubmit = async () => {
     </div>
     
     <button type="submit" :disabled="loading">
-      {{ loading ? '送出中...' : '送出' }}
+      {{ loading ? '提交中...' : '提交' }}
     </button>
   </form>
 </template>
 ```
 
-### 2. 使用 VeeValidate (推薦)
+### 2. 使用 VeeValidate (推荐)
 
 ```vue
 <script setup>
@@ -80,9 +80,9 @@ import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
 
 const schema = yup.object({
-  username: yup.string().required('請輸入使用者名稱'),
-  email: yup.string().email('請輸入有效的 Email').required('請輸入 Email'),
-  password: yup.string().min(8, '密碼至少 8 個字元').required('請輸入密碼')
+  username: yup.string().required('请输入用户名'),
+  email: yup.string().email('请输入有效的 Email').required('请输入 Email'),
+  password: yup.string().min(8, '密码至少 8 个字符').required('请输入密码')
 })
 
 const { handleSubmit, errors } = useForm({
@@ -111,14 +111,14 @@ const onSubmit = handleSubmit(async (values) => {
       <span class="error">{{ errors.email }}</span>
     </div>
     
-    <button type="submit">送出</button>
+    <button type="submit">提交</button>
   </form>
 </template>
 ```
 
-## Data Fetching Patterns
+## 数据获取模式 (Data Fetching Patterns)
 
-### 1. 使用 Composable 封裝
+### 1. 使用 Composable 封装
 
 ```javascript
 // composables/useApi.js
@@ -150,7 +150,7 @@ export function useApi() {
   }
 }
 
-// 在元件中使用
+// 在组件中使用
 <script setup>
 import { ref } from 'vue'
 import { useApi } from '@/composables/useApi'
@@ -166,7 +166,7 @@ onMounted(fetchUsers)
 </script>
 ```
 
-### 2. VueUse useFetch (推薦)
+### 2. VueUse useFetch (推荐)
 
 ```vue
 <script setup>
@@ -174,16 +174,16 @@ import { useFetch } from '@vueuse/core'
 
 const { data, error, isFetching } = useFetch('/api/users').json()
 
-// 延遲執行
+// 延迟执行
 const { data, execute } = useFetch('/api/users', { immediate: false }).json()
 
-// 帶 refetch
+// 带 refetch
 const { data, refetch } = useFetch('/api/users').json()
 </script>
 
 <template>
-  <div v-if="isFetching">載入中...</div>
-  <div v-else-if="error">錯誤: {{ error }}</div>
+  <div v-if="isFetching">加载中...</div>
+  <div v-else-if="error">错误: {{ error }}</div>
   <div v-else>
     <div v-for="user in data" :key="user.id">
       {{ user.name }}
@@ -198,13 +198,13 @@ const { data, refetch } = useFetch('/api/users').json()
 <script setup>
 import { useQuery, useMutation } from '@tanstack/vue-query'
 
-// 查詢
+// 查询
 const { data, isLoading, error, refetch } = useQuery({
   queryKey: ['users'],
   queryFn: () => fetch('/api/users').then(r => r.json())
 })
 
-// 變更
+// 变更
 const mutation = useMutation({
   mutationFn: (newUser) => fetch('/api/users', {
     method: 'POST',
@@ -221,15 +221,15 @@ const addUser = () => {
 </script>
 ```
 
-## List Rendering Patterns
+## 列表渲染模式 (List Rendering Patterns)
 
-### 1. 帶分頁的列表
+### 1. 带分页的列表
 
 ```vue
 <script setup>
 import { ref, computed } from 'vue'
 
-const items = ref([/* 大量資料 */])
+const items = ref([/* 大量数据 */])
 const currentPage = ref(1)
 const pageSize = ref(10)
 
@@ -263,15 +263,15 @@ const prevPage = () => {
     </div>
     
     <div class="pagination">
-      <button @click="prevPage" :disabled="currentPage === 1">上一頁</button>
+      <button @click="prevPage" :disabled="currentPage === 1">上一页</button>
       <span>{{ currentPage }} / {{ totalPages }}</span>
-      <button @click="nextPage" :disabled="currentPage === totalPages">下一頁</button>
+      <button @click="nextPage" :disabled="currentPage === totalPages">下一页</button>
     </div>
   </div>
 </template>
 ```
 
-### 2. 無限滾動
+### 2. 无限滚动
 
 ```vue
 <script setup>
@@ -317,13 +317,13 @@ useIntersectionObserver(
     </div>
     
     <div ref="target" v-if="hasMore">
-      載入更多...
+      加载更多...
     </div>
   </div>
 </template>
 ```
 
-### 3. 搜尋和過濾
+### 3. 搜索和过滤
 
 ```vue
 <script setup>
@@ -349,10 +349,10 @@ const filteredItems = computed(() => {
 
 <template>
   <div>
-    <input v-model="searchQuery" placeholder="搜尋..." />
+    <input v-model="searchQuery" placeholder="搜索..." />
     
     <select v-model="selectedCategory">
-      <option :value="null">全部分類</option>
+      <option :value="null">全部分类</option>
       <option value="fruit">水果</option>
       <option value="vegetable">蔬菜</option>
     </select>
@@ -364,7 +364,7 @@ const filteredItems = computed(() => {
 </template>
 ```
 
-## Modal/Dialog Patterns
+## 模态框/对话框模式 (Modal/Dialog Patterns)
 
 ### 1. 基本 Modal
 
@@ -389,7 +389,7 @@ const confirm = () => {
   close()
 }
 
-// 按 Esc 關閉
+// 按 Esc 关闭
 const handleKeydown = (e) => {
   if (e.key === 'Escape') close()
 }
@@ -419,7 +419,7 @@ watch(() => props.modelValue, (isOpen) => {
           
           <div class="modal-footer">
             <button @click="close">取消</button>
-            <button @click="confirm">確認</button>
+            <button @click="confirm">确认</button>
           </div>
         </div>
       </div>
@@ -472,15 +472,15 @@ const handleConfirm = () => {
 </script>
 
 <template>
-  <button @click="showModal = true">開啟 Modal</button>
+  <button @click="showModal = true">开启 Modal</button>
   
-  <Modal v-model="showModal" title="確認操作" @confirm="handleConfirm">
-    <p>你確定要執行此操作嗎?</p>
+  <Modal v-model="showModal" title="确认操作" @confirm="handleConfirm">
+    <p>你确定要执行此操作吗?</p>
   </Modal>
 </template>
 ```
 
-### 2. 程式化 Modal (useModal)
+### 2. 编程式 Modal (useModal)
 
 ```javascript
 // composables/useModal.js
@@ -524,18 +524,18 @@ const modal = useModal()
 
 const handleDelete = async () => {
   const confirmed = await modal.open({
-    title: '確認刪除',
-    content: '確定要刪除此項目嗎?'
+    title: '确认删除',
+    content: '确定要删除此项目吗?'
   })
   
   if (confirmed) {
-    // 執行刪除
+    // 执行删除
   }
 }
 </script>
 ```
 
-## State Management Patterns (Pinia)
+## 状态管理模式 (State Management Patterns)
 
 ### 1. 基本 Store
 
@@ -582,7 +582,7 @@ export const useUserStore = defineStore('user', () => {
   }
 })
 
-// 在元件中使用
+// 在组件中使用
 <script setup>
 import { useUserStore } from '@/stores/user'
 
@@ -594,7 +594,7 @@ const handleLogin = async () => {
 </script>
 ```
 
-### 2. Store 組合
+### 2. Store 组合
 
 ```javascript
 // stores/cart.js
@@ -608,7 +608,7 @@ export const useCartStore = defineStore('cart', () => {
   
   const addItem = (item) => {
     if (!userStore.isLoggedIn) {
-      alert('請先登入')
+      alert('请先登录')
       return
     }
     
@@ -619,9 +619,9 @@ export const useCartStore = defineStore('cart', () => {
 })
 ```
 
-## Routing Patterns
+## 路由模式 (Routing Patterns)
 
-### 1. 路由守衛
+### 1. 路由守卫
 
 ```javascript
 // router/index.js
@@ -659,7 +659,7 @@ router.beforeEach((to, from, next) => {
 export default router
 ```
 
-### 2. 巢狀路由和版面配置
+### 2. 嵌套路由和布局配置
 
 ```javascript
 // router/index.js
@@ -703,36 +703,36 @@ const routes = [
 </template>
 ```
 
-## i18n Patterns
+## 国际化模式 (i18n Patterns)
 
-### 1. Vue I18n 設定
+### 1. Vue I18n 设置
 
 ```javascript
 // i18n/index.js
 import { createI18n } from 'vue-i18n'
-import zh from './locales/zh-TW.json'
+import zh from './locales/zh-CN.json'
 import en from './locales/en.json'
 
 const i18n = createI18n({
   legacy: false,
-  locale: localStorage.getItem('locale') || 'zh-TW',
+  locale: localStorage.getItem('locale') || 'zh-CN',
   fallbackLocale: 'en',
   messages: {
-    'zh-TW': zh,
+    'zh-CN': zh,
     'en': en
   }
 })
 
 export default i18n
 
-// locales/zh-TW.json
+// locales/zh-CN.json
 {
-  "welcome": "歡迎",
+  "welcome": "欢迎",
   "greeting": "你好, {name}",
-  "items": "沒有項目 | 1 個項目 | {count} 個項目"
+  "items": "没有项目 | 1 个项目 | {count} 个项目"
 }
 
-// 在元件中使用
+// 在组件中使用
 <script setup>
 import { useI18n } from 'vue-i18n'
 
@@ -750,13 +750,13 @@ const changeLanguage = (lang) => {
     <p>{{ t('greeting', { name: 'EVA' }) }}</p>
     <p>{{ t('items', 5) }}</p>
     
-    <button @click="changeLanguage('zh-TW')">中文</button>
+    <button @click="changeLanguage('zh-CN')">中文</button>
     <button @click="changeLanguage('en')">English</button>
   </div>
 </template>
 ```
 
-## Debounce/Throttle Patterns
+## 防抖/节流模式 (Debounce/Throttle Patterns)
 
 ```vue
 <script setup>
@@ -766,12 +766,12 @@ import { useDebounceFn, useThrottleFn } from '@vueuse/core'
 const searchQuery = ref('')
 const results = ref([])
 
-// Debounce - 延遲執行,適合搜尋輸入
+// Debounce - 延迟执行,适合搜索输入
 const debouncedSearch = useDebounceFn(async (query) => {
   results.value = await searchApi(query)
 }, 500)
 
-// Throttle - 限制執行頻率,適合滾動事件
+// Throttle - 限制执行频率,适合滚动事件
 const throttledScroll = useThrottleFn(() => {
   console.log('Scrolling...')
 }, 200)
@@ -781,11 +781,11 @@ const throttledScroll = useThrottleFn(() => {
   <input 
     v-model="searchQuery" 
     @input="debouncedSearch(searchQuery)"
-    placeholder="搜尋..."
+    placeholder="搜索..."
   />
   
   <div @scroll="throttledScroll">
-    <!-- 滾動內容 -->
+    <!-- 滚动内容 -->
   </div>
 </template>
 ```

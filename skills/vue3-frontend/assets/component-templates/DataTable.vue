@@ -1,7 +1,12 @@
 <script setup>
 import { ref, computed } from 'vue'
 
-// Props
+/**
+ * 数据表格组件模板
+ * 包含排序、分页、搜索和 CRUD 操作的基础结构
+ */
+
+// Props 定义
 const props = defineProps({
   data: {
     type: Array,
@@ -18,21 +23,21 @@ const props = defineProps({
   }
 })
 
-// Emits
+// Emits 定义
 const emit = defineEmits(['row-click', 'edit', 'delete'])
 
-// State
+// 状态 (State)
 const currentPage = ref(1)
 const sortKey = ref('')
-const sortOrder = ref('asc') // 'asc' or 'desc'
+const sortOrder = ref('asc') // 'asc' 或 'desc'
 const searchQuery = ref('')
 
-// Computed
+// 计算属性 (Computed)
 const filteredData = computed(() => {
   if (!searchQuery.value) return props.data
 
   return props.data.filter(item => {
-    return Object.values(item).some(value => 
+    return Object.values(item).some(value =>
       String(value).toLowerCase().includes(searchQuery.value.toLowerCase())
     )
   })
@@ -80,7 +85,11 @@ const pageNumbers = computed(() => {
   return pages
 })
 
-// Methods
+// 方法 (Methods)
+/**
+ * 处理列排序
+ * @param {string} key - 排序字段名
+ */
 const handleSort = (key) => {
   if (sortKey.value === key) {
     sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
@@ -90,6 +99,10 @@ const handleSort = (key) => {
   }
 }
 
+/**
+ * 切换页码
+ * @param {number} page - 目标页码
+ */
 const goToPage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page
@@ -111,27 +124,18 @@ const handleDelete = (item) => {
 
 <template>
   <div class="data-table">
-    <!-- 搜尋列 -->
+    <!-- 搜索栏 -->
     <div class="table-controls">
-      <input
-        v-model="searchQuery"
-        type="text"
-        placeholder="搜尋..."
-        class="search-input"
-      />
+      <input v-model="searchQuery" type="text" placeholder="搜索..." class="search-input" />
     </div>
 
-    <!-- 表格 -->
+    <!-- 表格主体 -->
     <div class="table-wrapper">
       <table>
         <thead>
           <tr>
-            <th
-              v-for="column in columns"
-              :key="column.key"
-              :class="{ 'sortable': column.sortable }"
-              @click="column.sortable && handleSort(column.key)"
-            >
+            <th v-for="column in columns" :key="column.key" :class="{ 'sortable': column.sortable }"
+              @click="column.sortable && handleSort(column.key)">
               {{ column.label }}
               <span v-if="column.sortable && sortKey === column.key" class="sort-icon">
                 {{ sortOrder === 'asc' ? '▲' : '▼' }}
@@ -141,12 +145,7 @@ const handleDelete = (item) => {
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="item in paginatedData"
-            :key="item.id"
-            @click="handleRowClick(item)"
-            class="table-row"
-          >
+          <tr v-for="item in paginatedData" :key="item.id" @click="handleRowClick(item)" class="table-row">
             <td v-for="column in columns" :key="column.key">
               <slot :name="`cell-${column.key}`" :item="item">
                 {{ item[column.key] }}
@@ -154,8 +153,8 @@ const handleDelete = (item) => {
             </td>
             <td v-if="$slots.actions" class="actions-cell">
               <slot name="actions" :item="item" :edit="handleEdit" :delete="handleDelete">
-                <button @click.stop="handleEdit(item)" class="btn-edit">編輯</button>
-                <button @click.stop="handleDelete(item)" class="btn-delete">刪除</button>
+                <button @click.stop="handleEdit(item)" class="btn-edit">编辑</button>
+                <button @click.stop="handleDelete(item)" class="btn-delete">删除</button>
               </slot>
             </td>
           </tr>
@@ -163,50 +162,29 @@ const handleDelete = (item) => {
       </table>
     </div>
 
-    <!-- 分頁 -->
+    <!-- 分页控件 -->
     <div v-if="totalPages > 1" class="pagination">
-      <button
-        @click="goToPage(1)"
-        :disabled="currentPage === 1"
-        class="page-btn"
-      >
+      <button @click="goToPage(1)" :disabled="currentPage === 1" class="page-btn">
         «
       </button>
-      <button
-        @click="goToPage(currentPage - 1)"
-        :disabled="currentPage === 1"
-        class="page-btn"
-      >
+      <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="page-btn">
         ‹
       </button>
 
-      <button
-        v-for="page in pageNumbers"
-        :key="page"
-        @click="goToPage(page)"
-        :class="{ 'active': currentPage === page }"
-        class="page-btn"
-      >
+      <button v-for="page in pageNumbers" :key="page" @click="goToPage(page)"
+        :class="{ 'active': currentPage === page }" class="page-btn">
         {{ page }}
       </button>
 
-      <button
-        @click="goToPage(currentPage + 1)"
-        :disabled="currentPage === totalPages"
-        class="page-btn"
-      >
+      <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" class="page-btn">
         ›
       </button>
-      <button
-        @click="goToPage(totalPages)"
-        :disabled="currentPage === totalPages"
-        class="page-btn"
-      >
+      <button @click="goToPage(totalPages)" :disabled="currentPage === totalPages" class="page-btn">
         »
       </button>
 
       <span class="page-info">
-        第 {{ currentPage }} 頁,共 {{ totalPages }} 頁
+        第 {{ currentPage }} 页,共 {{ totalPages }} 页
       </span>
     </div>
   </div>
@@ -238,7 +216,8 @@ table {
   background: white;
 }
 
-th, td {
+th,
+td {
   padding: 0.75rem;
   text-align: left;
   border-bottom: 1px solid #ddd;

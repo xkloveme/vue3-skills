@@ -1,9 +1,9 @@
-# Vue 3 Composition API Reference
+# Vue 3 Composition API 参考
 
-## Reactivity APIs
+## 响应式 API (Reactivity APIs)
 
 ### ref()
-為基本型別建立響應式引用。
+为基本类型创建响应式引用。
 
 ```javascript
 import { ref } from 'vue'
@@ -11,19 +11,19 @@ import { ref } from 'vue'
 const count = ref(0)
 const message = ref('Hello')
 
-// 讀取值
+// 读取值
 console.log(count.value) // 0
 
 // 更新值
 count.value++
 
-// 在 template 中會自動解包,不需要 .value
+// 在 template 中会自动解包,不需要 .value
 ```
 
-**使用時機:** 基本型別 (string, number, boolean) 或需要重新賦值的物件。
+**使用时机:** 基本类型 (string, number, boolean) 或需要重新赋值的对象。
 
 ### reactive()
-為物件建立深層響應式代理。
+为对象创建深层响应式代理。
 
 ```javascript
 import { reactive } from 'vue'
@@ -36,31 +36,31 @@ const state = reactive({
   }
 })
 
-// 直接存取和修改
+// 直接访问和修改
 state.count++
 state.user.name = 'Eva Chen'
 
-// ❌ 不能重新賦值,會失去響應性
-state = { count: 1 } // 錯誤!
+// ❌ 不能重新赋值,会失去响应性
+state = { count: 1 } // 错误!
 
-// ✅ 應該修改屬性
+// ✅ 应该修改属性
 Object.assign(state, { count: 1 })
 ```
 
-**使用時機:** 複雜物件結構,不需要重新賦值的情況。
+**使用时机:** 复杂对象结构,不需要重新赋值的情况。
 
 ### computed()
-建立計算屬性。
+创建计算属性。
 
 ```javascript
 import { ref, computed } from 'vue'
 
 const count = ref(0)
 
-// 唯讀 computed
+// 只读 computed
 const doubleCount = computed(() => count.value * 2)
 
-// 可寫 computed
+// 可写 computed
 const fullName = computed({
   get() {
     return `${firstName.value} ${lastName.value}`
@@ -72,24 +72,24 @@ const fullName = computed({
 ```
 
 ### watch()
-觀察響應式資料變化。
+观察响应式数据变化。
 
 ```javascript
 import { ref, watch } from 'vue'
 
 const count = ref(0)
 
-// 觀察單一源
+// 观察单一源
 watch(count, (newValue, oldValue) => {
   console.log(`Count changed from ${oldValue} to ${newValue}`)
 })
 
-// 觀察多個源
+// 观察多个源
 watch([count, message], ([newCount, newMsg], [oldCount, oldMsg]) => {
   console.log('Multiple sources changed')
 })
 
-// 深度觀察
+// 深度观察
 const state = reactive({ nested: { count: 0 } })
 watch(
   () => state.nested,
@@ -99,7 +99,7 @@ watch(
   { deep: true }
 )
 
-// 立即執行
+// 立即执行
 watch(
   source,
   callback,
@@ -108,7 +108,7 @@ watch(
 ```
 
 ### watchEffect()
-自動追蹤依賴並執行副作用。
+自动追踪依赖并执行副作用。
 
 ```javascript
 import { ref, watchEffect } from 'vue'
@@ -117,7 +117,7 @@ const count = ref(0)
 const message = ref('Hello')
 
 watchEffect(() => {
-  // 自動追蹤 count 和 message
+  // 自动追踪 count 和 message
   console.log(`Count: ${count.value}, Message: ${message.value}`)
 })
 
@@ -132,10 +132,10 @@ watchEffect((onCleanup) => {
 ```
 
 **watch vs watchEffect:**
-- `watch`: 需明確指定要觀察的資料,可訪問舊值
-- `watchEffect`: 自動追蹤依賴,立即執行,無法訪問舊值
+- `watch`: 需明确指定要观察的数据,可访问旧值
+- `watchEffect`: 自动追踪依赖,立即执行,无法访问旧值
 
-## Lifecycle Hooks
+## 生命周期钩子 (Lifecycle Hooks)
 
 ```javascript
 import {
@@ -152,7 +152,7 @@ import {
 
 export default {
   setup() {
-    // setup() 本身就相當於 beforeCreate 和 created
+    // setup() 本身就相当于 beforeCreate 和 created
     
     onBeforeMount(() => {
       console.log('Component is about to mount')
@@ -160,7 +160,7 @@ export default {
     
     onMounted(() => {
       console.log('Component mounted')
-      // DOM 已經可用
+      // DOM 已经可用
     })
     
     onBeforeUpdate(() => {
@@ -180,7 +180,7 @@ export default {
       console.log('Component unmounted')
     })
     
-    // Keep-alive 元件專用
+    // Keep-alive 组件专用
     onActivated(() => {
       console.log('Component activated')
     })
@@ -189,32 +189,32 @@ export default {
       console.log('Component deactivated')
     })
     
-    // 錯誤捕獲
+    // 错误捕获
     onErrorCaptured((err, instance, info) => {
       console.error('Error captured:', err)
-      return false // 停止錯誤傳播
+      return false // 停止错误传播
     })
   }
 }
 ```
 
-## Component APIs
+## 组件 API (Component APIs)
 
 ### defineProps()
-定義元件 props (僅在 `<script setup>` 中可用)。
+定义组件 props (仅在 `<script setup>` 中可用)。
 
 ```javascript
 <script setup>
 // 基本用法
 const props = defineProps(['title', 'likes'])
 
-// 型別定義 (TypeScript)
+// 类型定义 (TypeScript)
 const props = defineProps<{
   title: string
   likes: number
 }>()
 
-// 帶預設值 (TypeScript)
+// 带默认值 (TypeScript)
 interface Props {
   title?: string
   likes?: number
@@ -225,7 +225,7 @@ const props = withDefaults(defineProps<Props>(), {
   likes: 0
 })
 
-// 執行時驗證
+// 运行时验证
 const props = defineProps({
   title: String,
   likes: {
@@ -243,20 +243,20 @@ const props = defineProps({
 ```
 
 ### defineEmits()
-定義元件事件 (僅在 `<script setup>` 中可用)。
+定义组件事件 (仅在 `<script setup>` 中可用)。
 
 ```javascript
 <script setup>
 // 基本用法
 const emit = defineEmits(['update', 'delete'])
 
-// 型別定義 (TypeScript)
+// 类型定义 (TypeScript)
 const emit = defineEmits<{
   update: [id: number, value: string]
   delete: [id: number]
 }>()
 
-// 執行時驗證
+// 运行时验证
 const emit = defineEmits({
   update: (id, value) => {
     if (typeof id !== 'number') {
@@ -273,7 +273,7 @@ emit('update', 1, 'new value')
 ```
 
 ### defineExpose()
-暴露元件內部方法給父元件 (僅在 `<script setup>` 中可用)。
+暴露组件内部方法给父组件 (仅在 `<script setup>` 中可用)。
 
 ```javascript
 <script setup>
@@ -282,7 +282,7 @@ import { ref } from 'vue'
 const count = ref(0)
 const increment = () => count.value++
 
-// 只暴露這些給父元件
+// 只暴露这些给父组件
 defineExpose({
   count,
   increment
@@ -291,7 +291,7 @@ defineExpose({
 ```
 
 ### useSlots() & useAttrs()
-訪問 slots 和 attrs。
+访问 slots 和 attrs。
 
 ```javascript
 <script setup>
@@ -300,23 +300,23 @@ import { useSlots, useAttrs } from 'vue'
 const slots = useSlots()
 const attrs = useAttrs()
 
-// 檢查 slot 是否存在
+// 检查 slot 是否存在
 const hasDefaultSlot = !!slots.default
 const hasHeaderSlot = !!slots.header
 
-// 訪問屬性
+// 访问属性
 console.log(attrs.class)
 console.log(attrs.style)
 </script>
 ```
 
-## Dependency Injection
+## 依赖注入 (Dependency Injection)
 
 ### provide() / inject()
-跨層級元件通訊。
+跨层级组件通信。
 
 ```javascript
-// 祖先元件
+// 祖先组件
 <script setup>
 import { provide, ref } from 'vue'
 
@@ -325,23 +325,23 @@ const updateTheme = (newTheme) => {
   theme.value = newTheme
 }
 
-// 提供響應式資料
+// 提供响应式数据
 provide('theme', theme)
 provide('updateTheme', updateTheme)
 
-// 使用 Symbol 避免衝突
+// 使用 Symbol 避免冲突
 export const ThemeSymbol = Symbol()
 provide(ThemeSymbol, theme)
 </script>
 
-// 後代元件
+// 后代组件
 <script setup>
 import { inject } from 'vue'
 
 const theme = inject('theme')
 const updateTheme = inject('updateTheme')
 
-// 提供預設值
+// 提供默认值
 const theme = inject('theme', 'light')
 
 // 使用 Symbol
@@ -350,20 +350,20 @@ const theme = inject(ThemeSymbol)
 </script>
 ```
 
-## Template Refs
+## 模板引用 (Template Refs)
 
 ```javascript
 <script setup>
 import { ref, onMounted } from 'vue'
 
-// 單一元素 ref
+// 单一元素 ref
 const inputRef = ref(null)
 
 onMounted(() => {
   inputRef.value.focus()
 })
 
-// 元件 ref (需要 defineExpose)
+// 组件 ref (需要 defineExpose)
 const childRef = ref(null)
 
 onMounted(() => {
@@ -390,7 +390,7 @@ onMounted(() => {
 </template>
 ```
 
-## Composables (可重用邏輯)
+## Composables (可重用逻辑)
 
 ```javascript
 // composables/useCounter.js
@@ -417,7 +417,7 @@ export function useCounter(initialValue = 0) {
   }
 }
 
-// 在元件中使用
+// 在组件中使用
 <script setup>
 import { useCounter } from '@/composables/useCounter'
 
@@ -425,7 +425,7 @@ const { count, doubleCount, increment, decrement } = useCounter(10)
 </script>
 ```
 
-## Advanced Reactivity APIs
+## 高级响应式 API (Advanced Reactivity APIs)
 
 ### toRef() / toRefs()
 ```javascript
@@ -436,13 +436,13 @@ const state = reactive({
   age: 25
 })
 
-// 為單一屬性建立 ref
+// 为单一属性创建 ref
 const nameRef = toRef(state, 'name')
-nameRef.value = 'Eva Chen' // state.name 也會更新
+nameRef.value = 'Eva Chen' // state.name 也会更新
 
-// 為所有屬性建立 ref
+// 为所有属性创建 ref
 const { name, age } = toRefs(state)
-name.value = 'Eva Chen' // state.name 也會更新
+name.value = 'Eva Chen' // state.name 也会更新
 ```
 
 ### unref()
@@ -469,22 +469,22 @@ isReadonly(readonlyState) // true
 ```
 
 ### shallowRef() / shallowReactive()
-淺層響應式,只有根層級是響應式的。
+浅层响应式,只有根层级是响应式的。
 
 ```javascript
 import { shallowRef, shallowReactive } from 'vue'
 
-// 淺層 ref - 只有 .value 的變化會觸發更新
+// 浅层 ref - 只有 .value 的变化会触发更新
 const state = shallowRef({ count: 0 })
-state.value.count++ // 不會觸發更新
-state.value = { count: 1 } // 會觸發更新
+state.value.count++ // 不会触发更新
+state.value = { count: 1 } // 会触发更新
 
-// 淺層 reactive - 只有根層級屬性的變化會觸發更新
+// 浅层 reactive - 只有根层级属性的变化会触发更新
 const state = shallowReactive({
   nested: { count: 0 }
 })
-state.nested.count++ // 不會觸發更新
-state.nested = { count: 1 } // 會觸發更新
+state.nested.count++ // 不会触发更新
+state.nested = { count: 1 } // 会触发更新
 ```
 
-**使用時機:** 效能最佳化,大型不可變資料結構。
+**使用时机:** 性能优化,大型不可变数据结构。

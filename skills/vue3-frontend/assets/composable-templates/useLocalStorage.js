@@ -1,13 +1,13 @@
 import { ref, watch } from 'vue'
 
 /**
- * 與 localStorage 同步的響應式狀態
+ * 与 localStorage 同步的响应式状态
  * @param {string} key - localStorage key
- * @param {any} defaultValue - 預設值
- * @returns {Ref} - 響應式引用
+ * @param {any} defaultValue - 默认值
+ * @returns {Ref} - 响应式引用
  */
 export function useLocalStorage(key, defaultValue = null) {
-  // 讀取初始值
+  // 读取初始值
   const readValue = () => {
     try {
       const item = window.localStorage.getItem(key)
@@ -20,7 +20,7 @@ export function useLocalStorage(key, defaultValue = null) {
 
   const storedValue = ref(readValue())
 
-  // 寫入 localStorage
+  // 写入 localStorage
   const setValue = (value) => {
     try {
       const valueToStore = value instanceof Function ? value(storedValue.value) : value
@@ -32,7 +32,7 @@ export function useLocalStorage(key, defaultValue = null) {
     }
   }
 
-  // 移除項目
+  // 移除项目
   const removeValue = () => {
     try {
       window.localStorage.removeItem(key)
@@ -42,7 +42,7 @@ export function useLocalStorage(key, defaultValue = null) {
     }
   }
 
-  // 監聽其他頁籤的變化
+  // 监听其他标签页的变化
   const handleStorageChange = (e) => {
     if (e.key === key && e.newValue !== null) {
       storedValue.value = JSON.parse(e.newValue)
@@ -65,12 +65,12 @@ export function useLocalStorage(key, defaultValue = null) {
 }
 
 /**
- * 簡化版本 - 直接返回 ref
+ * 简化版本 - 直接返回 ref
  */
 export function useStorage(key, defaultValue = null) {
   const { value, setValue } = useLocalStorage(key, defaultValue)
 
-  // 監聽 ref 變化並自動儲存
+  // 监听 ref 变化并自动保存
   watch(value, (newValue) => {
     setValue(newValue)
   }, { deep: true })

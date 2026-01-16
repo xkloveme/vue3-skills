@@ -1,12 +1,12 @@
-# Vue 3 Best Practices
+# Vue 3 最佳实践
 
-## Component Design
+## 组件设计 (Component Design)
 
-### 1. 使用 `<script setup>` 語法
-更簡潔、效能更好、更好的 TypeScript 支援。
+### 1. 使用 `<script setup>` 语法
+更简洁、性能更好、更好的 TypeScript 支持。
 
 ```vue
-<!-- ✅ 推薦 -->
+<!-- ✅ 推荐 -->
 <script setup>
 import { ref } from 'vue'
 const count = ref(0)
@@ -23,11 +23,11 @@ export default {
 </script>
 ```
 
-### 2. Props 定義要明確且嚴格
+### 2. Props 定义要明确且严格
 
 ```vue
 <script setup>
-// ✅ 推薦 - 明確型別和驗證
+// ✅ 推荐 - 明确类型和验证
 const props = defineProps({
   title: {
     type: String,
@@ -44,15 +44,15 @@ const props = defineProps({
   }
 })
 
-// ❌ 避免 - 過於寬鬆
+// ❌ 避免 - 过于宽松
 const props = defineProps(['title', 'likes', 'status'])
 </script>
 ```
 
-### 3. 使用 Composables 封裝可重用邏輯
+### 3. 使用 Composables 封装可重用逻辑
 
 ```javascript
-// ✅ 推薦 - 建立可重用的 composable
+// ✅ 推荐 - 建立可重用的 composable
 // composables/useFetch.js
 import { ref } from 'vue'
 
@@ -76,24 +76,24 @@ export function useFetch(url) {
   return { data, error, loading, fetchData }
 }
 
-// 在元件中使用
+// 在组件中使用
 <script setup>
 import { useFetch } from '@/composables/useFetch'
 const { data, error, loading, fetchData } = useFetch('/api/users')
 </script>
 ```
 
-### 4. 適當的元件拆分
+### 4. 适当的组件拆分
 
 ```vue
-<!-- ❌ 避免 - 單一元件過於龐大 -->
+<!-- ❌ 避免 - 单一组件过于庞大 -->
 <template>
   <div>
-    <!-- 100+ 行的複雜模板 -->
+    <!-- 100+ 行的复杂模板 -->
   </div>
 </template>
 
-<!-- ✅ 推薦 - 拆分成更小的元件 -->
+<!-- ✅ 推荐 - 拆分成更小的组件 -->
 <template>
   <div>
     <UserHeader :user="user" />
@@ -103,17 +103,17 @@ const { data, error, loading, fetchData } = useFetch('/api/users')
 </template>
 ```
 
-## Reactivity Best Practices
+## 响应式最佳实践 (Reactivity Best Practices)
 
-### 1. 選擇正確的響應式 API
+### 1. 选择正确的响应式 API
 
 ```javascript
-// ✅ 基本型別使用 ref
+// ✅ 基本类型使用 ref
 const count = ref(0)
 const message = ref('Hello')
 const isActive = ref(true)
 
-// ✅ 複雜物件使用 reactive
+// ✅ 复杂对象使用 reactive
 const user = reactive({
   name: 'EVA',
   role: 'Frontend Engineer',
@@ -123,21 +123,21 @@ const user = reactive({
   }
 })
 
-// ❌ 避免 - 基本型別使用 reactive
+// ❌ 避免 - 基本类型使用 reactive
 const state = reactive({
-  count: 0  // 應該用 ref(0)
+  count: 0  // 应该用 ref(0)
 })
 
-// ❌ 避免 - 需要重新賦值的物件使用 reactive
+// ❌ 避免 - 需要重新赋值的对象使用 reactive
 let state = reactive({ data: [] })
-state = { data: newData }  // 失去響應性!
+state = { data: newData }  // 失去响应性!
 
-// ✅ 應該用 ref
+// ✅ 应该用 ref
 const state = ref({ data: [] })
 state.value = { data: newData }  // OK
 ```
 
-### 2. 避免直接解構響應式物件
+### 2. 避免直接解构响应式对象
 
 ```javascript
 const user = reactive({
@@ -145,7 +145,7 @@ const user = reactive({
   age: 25
 })
 
-// ❌ 避免 - 失去響應性
+// ❌ 避免 - 失去响应性
 const { name, age } = user
 
 // ✅ 使用 toRefs
@@ -157,24 +157,24 @@ import { computed } from 'vue'
 const userName = computed(() => user.name)
 ```
 
-### 3. 正確使用 watch
+### 3. 正确使用 watch
 
 ```javascript
 import { ref, watch, watchEffect } from 'vue'
 
 const count = ref(0)
 
-// ✅ 需要舊值時使用 watch
+// ✅ 需要旧值时使用 watch
 watch(count, (newVal, oldVal) => {
   console.log(`Changed from ${oldVal} to ${newVal}`)
 })
 
-// ✅ 不需要舊值,自動追蹤依賴時使用 watchEffect
+// ✅ 不需要旧值,自动追踪依赖时使用 watchEffect
 watchEffect(() => {
   console.log(`Count is ${count.value}`)
 })
 
-// ✅ 觀察物件的特定屬性
+// ✅ 观察对象的特定属性
 const user = reactive({ name: 'EVA', age: 25 })
 watch(
   () => user.name,
@@ -183,13 +183,13 @@ watch(
   }
 )
 
-// ❌ 避免 - 在 watch 中執行副作用但沒有清理
+// ❌ 避免 - 在 watch 中执行副作用但没有清理
 watch(source, () => {
   const timer = setInterval(() => {}, 1000)
-  // 缺少清理邏輯!
+  // 缺少清理逻辑!
 })
 
-// ✅ 正確清理副作用
+// ✅ 正确清理副作用
 watch(source, (newVal, oldVal, onCleanup) => {
   const timer = setInterval(() => {}, 1000)
   onCleanup(() => {
@@ -198,7 +198,7 @@ watch(source, (newVal, oldVal, onCleanup) => {
 })
 ```
 
-## Performance Optimization
+## 性能优化 (Performance Optimization)
 
 ### 1. 使用 computed 而非 method
 
@@ -208,12 +208,12 @@ import { ref, computed } from 'vue'
 
 const items = ref([1, 2, 3, 4, 5])
 
-// ✅ 推薦 - computed 會快取結果
+// ✅ 推荐 - computed 会缓存结果
 const filteredItems = computed(() => {
   return items.value.filter(item => item > 2)
 })
 
-// ❌ 避免 - method 每次都會重新執行
+// ❌ 避免 - method 每次都会重新执行
 const getFilteredItems = () => {
   return items.value.filter(item => item > 2)
 }
@@ -223,7 +223,7 @@ const getFilteredItems = () => {
   <!-- ✅ 使用 computed -->
   <div v-for="item in filteredItems" :key="item">{{ item }}</div>
   
-  <!-- ❌ 每次渲染都會執行 -->
+  <!-- ❌ 每次渲染都会执行 -->
   <div v-for="item in getFilteredItems()" :key="item">{{ item }}</div>
 </template>
 ```
@@ -232,39 +232,39 @@ const getFilteredItems = () => {
 
 ```vue
 <template>
-  <!-- ✅ 頻繁切換使用 v-show -->
+  <!-- ✅ 频繁切换使用 v-show -->
   <div v-show="isVisible">Content</div>
   
-  <!-- ✅ 初始渲染條件使用 v-if -->
+  <!-- ✅ 初始渲染条件使用 v-if -->
   <div v-if="hasPermission">Admin Panel</div>
   
-  <!-- ✅ 互斥條件使用 v-if/v-else-if/v-else -->
+  <!-- ✅ 互斥条件使用 v-if/v-else-if/v-else -->
   <div v-if="type === 'A'">Type A</div>
   <div v-else-if="type === 'B'">Type B</div>
   <div v-else>Other</div>
 </template>
 ```
 
-### 3. 正確使用 key
+### 3. 正确使用 key
 
 ```vue
 <template>
-  <!-- ✅ v-for 必須使用唯一的 key -->
+  <!-- ✅ v-for 必须使用唯一的 key -->
   <div v-for="item in items" :key="item.id">
     {{ item.name }}
   </div>
   
-  <!-- ❌ 避免使用 index 作為 key (除非列表是靜態的) -->
+  <!-- ❌ 避免使用 index 作为 key (除非列表是静态的) -->
   <div v-for="(item, index) in items" :key="index">
     {{ item.name }}
   </div>
   
-  <!-- ✅ 強制重新渲染時使用 key -->
+  <!-- ✅ 强制重新渲染时使用 key -->
   <UserProfile :key="userId" :user-id="userId" />
 </template>
 ```
 
-### 4. 延遲載入大型元件
+### 4. 延迟加载大型组件
 
 ```javascript
 // ✅ 使用 defineAsyncComponent
@@ -274,7 +274,7 @@ const HeavyComponent = defineAsyncComponent(() =>
   import('./HeavyComponent.vue')
 )
 
-// ✅ 帶載入和錯誤狀態
+// ✅ 带加载和错误状态
 const HeavyComponent = defineAsyncComponent({
   loader: () => import('./HeavyComponent.vue'),
   loadingComponent: LoadingSpinner,
@@ -284,34 +284,34 @@ const HeavyComponent = defineAsyncComponent({
 })
 ```
 
-### 5. 使用 KeepAlive 快取元件
+### 5. 使用 KeepAlive 缓存组件
 
 ```vue
 <template>
-  <!-- ✅ 快取動態元件 -->
+  <!-- ✅ 缓存动态组件 -->
   <KeepAlive :max="10">
     <component :is="currentComponent" />
   </KeepAlive>
   
-  <!-- ✅ 快取路由元件 -->
+  <!-- ✅ 缓存路由组件 -->
   <router-view v-slot="{ Component }">
     <KeepAlive>
       <component :is="Component" />
     </KeepAlive>
   </router-view>
   
-  <!-- ✅ 條件快取 -->
+  <!-- ✅ 条件缓存 -->
   <KeepAlive :include="['ComponentA', 'ComponentB']">
     <component :is="currentComponent" />
   </KeepAlive>
 </template>
 ```
 
-### 6. 虛擬滾動處理大列表
+### 6. 虚拟滚动处理大列表
 
 ```vue
 <script setup>
-// 使用 vue-virtual-scroller 或類似函式庫
+// 使用 vue-virtual-scroller 或类似库
 import { RecycleScroller } from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
@@ -331,28 +331,28 @@ const items = ref([/* 10000+ items */])
 </template>
 ```
 
-## Code Organization
+## 代码组织 (Code Organization)
 
-### 1. 檔案結構
+### 1. 文件结构
 
 ```
 src/
-├── assets/          # 靜態資源
-├── components/      # 通用元件
-│   ├── common/      # 基礎元件 (Button, Input)
-│   ├── layout/      # 版面元件 (Header, Footer)
-│   └── features/    # 功能元件
-├── composables/     # 可重用邏輯
+├── assets/          # 静态资源
+├── components/      # 通用组件
+│   ├── common/      # 基础组件 (Button, Input)
+│   ├── layout/      # 布局组件 (Header, Footer)
+│   └── features/    # 功能组件
+├── composables/     # 可重用逻辑
 ├── stores/          # Pinia stores
-├── router/          # 路由設定
-├── views/           # 頁面元件
-├── utils/           # 工具函數
-├── services/        # API 服務
-├── types/           # TypeScript 型別定義
-└── constants/       # 常數定義
+├── router/          # 路由设置
+├── views/           # 页面组件
+├── utils/           # 工具函数
+├── services/        # API 服务
+├── types/           # TypeScript 类型定义
+└── constants/       # 常量定义
 ```
 
-### 2. 元件命名規範
+### 2. 组件命名规范
 
 ```vue
 <!-- ✅ 使用 PascalCase -->
@@ -366,8 +366,8 @@ import TheHeader from '@/components/layout/TheHeader.vue'
   <UserProfile />
 </template>
 
-<!-- 檔案命名 -->
-<!-- ✅ 推薦 -->
+<!-- 文件命名 -->
+<!-- ✅ 推荐 -->
 UserProfile.vue
 TheHeader.vue
 BaseButton.vue
@@ -378,10 +378,10 @@ header.vue
 button.vue
 ```
 
-### 3. Composables 命名規範
+### 3. Composables 命名规范
 
 ```javascript
-// ✅ 使用 use 前綴
+// ✅ 使用 use 前缀
 export function useAuth() { }
 export function useFetch() { }
 export function useLocalStorage() { }
@@ -391,9 +391,9 @@ export function auth() { }
 export function fetch() { }
 ```
 
-## Error Handling
+## 错误处理 (Error Handling)
 
-### 1. 全域錯誤處理
+### 1. 全局错误处理
 
 ```javascript
 // main.js
@@ -404,12 +404,12 @@ app.config.errorHandler = (err, instance, info) => {
   console.error('Component:', instance)
   console.error('Error info:', info)
   
-  // 發送到錯誤追蹤服務
+  // 发送到错误追踪服务
   // trackError(err, { component: instance, info })
 }
 ```
 
-### 2. 元件內錯誤處理
+### 2. 组件内错误处理
 
 ```vue
 <script setup>
@@ -421,7 +421,7 @@ onErrorCaptured((err, instance, info) => {
   error.value = err.message
   console.error('Captured error:', err)
   
-  // 返回 false 停止錯誤傳播
+  // 返回 false 停止错误传播
   return false
 })
 </script>
@@ -434,7 +434,7 @@ onErrorCaptured((err, instance, info) => {
 </template>
 ```
 
-### 3. Async/Await 錯誤處理
+### 3. Async/Await 错误处理
 
 ```javascript
 <script setup>
@@ -464,9 +464,9 @@ const fetchData = async () => {
 </script>
 ```
 
-## TypeScript Integration
+## TypeScript 集成 (TypeScript Integration)
 
-### 1. 為 Props 定義型別
+### 1. 为 Props 定义类型
 
 ```vue
 <script setup lang="ts">
@@ -485,7 +485,7 @@ const props = withDefaults(defineProps<Props>(), {
 </script>
 ```
 
-### 2. 為 Emits 定義型別
+### 2. 为 Emits 定义类型
 
 ```vue
 <script setup lang="ts">
@@ -500,7 +500,7 @@ emit('update', 1, 'new value')
 </script>
 ```
 
-### 3. 為 Composables 定義型別
+### 3. 为 Composables 定义类型
 
 ```typescript
 // composables/useFetch.ts
@@ -534,19 +534,19 @@ export function useFetch<T>(url: string): UseFetchReturn<T> {
 }
 ```
 
-## Testing Considerations
+## 测试注意事项 (Testing Considerations)
 
-### 1. 可測試的元件設計
+### 1. 可测试的组件设计
 
 ```vue
 <script setup>
 import { ref, computed } from 'vue'
 
-// ✅ 推薦 - 邏輯抽離到 composable
+// ✅ 推荐 - 逻辑抽离到 composable
 import { useCounter } from '@/composables/useCounter'
 const { count, increment } = useCounter()
 
-// ✅ Props 和 emits 明確定義
+// ✅ Props 和 emits 明确定义
 const props = defineProps({
   initialValue: {
     type: Number,
@@ -557,7 +557,7 @@ const props = defineProps({
 const emit = defineEmits(['change'])
 </script>
 
-<!-- ✅ 簡單的模板邏輯 -->
+<!-- ✅ 简单的模板逻辑 -->
 <template>
   <div>
     <span>{{ count }}</span>
@@ -566,7 +566,7 @@ const emit = defineEmits(['change'])
 </template>
 ```
 
-### 2. 使用依賴注入方便測試
+### 2. 使用依赖注入方便测试
 
 ```javascript
 // ✅ 使用 provide/inject
@@ -576,5 +576,5 @@ app.provide('api', apiService)
 // component.vue
 const api = inject('api')
 
-// 測試時可以輕鬆 mock
+// 测试时可以轻松 mock
 ```

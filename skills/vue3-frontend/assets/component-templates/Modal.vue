@@ -1,7 +1,12 @@
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 
-// Props
+/**
+ * 模态框组件模板
+ * 支持自定义宽度、点击外部关闭、ESC 关闭等功能
+ */
+
+// Props 定义
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -33,7 +38,7 @@ const props = defineProps({
   },
   confirmText: {
     type: String,
-    default: '確認'
+    default: '确认'
   },
   cancelText: {
     type: String,
@@ -45,7 +50,7 @@ const props = defineProps({
   }
 })
 
-// Emits
+// Emits 定义
 const emit = defineEmits([
   'update:modelValue',
   'confirm',
@@ -54,7 +59,10 @@ const emit = defineEmits([
   'closed'
 ])
 
-// Methods
+// 方法 (Methods)
+/**
+ * 关闭模态框
+ */
 const close = () => {
   if (props.closable && !props.loading) {
     emit('update:modelValue', false)
@@ -62,12 +70,18 @@ const close = () => {
   }
 }
 
+/**
+ * 处理确认操作
+ */
 const handleConfirm = () => {
   if (!props.loading) {
     emit('confirm')
   }
 }
 
+/**
+ * 处理取消操作
+ */
 const handleCancel = () => {
   if (!props.loading) {
     emit('cancel')
@@ -87,7 +101,7 @@ const handleKeydown = (e) => {
   }
 }
 
-// Watch for modal open/close
+// 监听模态框打开/关闭
 watch(() => props.modelValue, (isOpen) => {
   if (isOpen) {
     document.body.style.overflow = 'hidden'
@@ -99,7 +113,7 @@ watch(() => props.modelValue, (isOpen) => {
   }
 })
 
-// Cleanup on unmount
+// 组件卸载时清理
 onBeforeUnmount(() => {
   document.body.style.overflow = ''
   document.removeEventListener('keydown', handleKeydown)
@@ -115,7 +129,7 @@ onBeforeUnmount(() => {
           :style="{ width }"
           @click.stop
         >
-          <!-- Header -->
+          <!-- 头部 (Header) -->
           <div v-if="title || closable || $slots.header" class="modal-header">
             <slot name="header">
               <h3 class="modal-title">{{ title }}</h3>
@@ -125,18 +139,18 @@ onBeforeUnmount(() => {
               @click="close"
               :disabled="loading"
               class="modal-close"
-              aria-label="關閉"
+              aria-label="关闭"
             >
               ×
             </button>
           </div>
 
-          <!-- Body -->
+          <!-- 内容主体 (Body) -->
           <div class="modal-body">
             <slot />
           </div>
 
-          <!-- Footer -->
+          <!-- 底部 (Footer) -->
           <div v-if="showFooter || $slots.footer" class="modal-footer">
             <slot name="footer">
               <button
@@ -152,7 +166,7 @@ onBeforeUnmount(() => {
                 class="btn btn-confirm"
               >
                 <span v-if="loading" class="loading-spinner"></span>
-                {{ loading ? '處理中...' : confirmText }}
+                {{ loading ? '处理中...' : confirmText }}
               </button>
             </slot>
           </div>

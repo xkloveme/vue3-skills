@@ -1,35 +1,44 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 
-// Props
+/**
+ * 基础组件模板
+ * 包含 Props, Emits, State, Computed, Methods 和 Lifecycle 的基本结构
+ */
+
+// Props 定义
 const props = defineProps({
-  // 定義你的 props
+  // 标题
   title: {
     type: String,
     default: ''
   }
 })
 
-// Emits
+// Emits 定义
 const emit = defineEmits(['update', 'change'])
 
-// State
+// 状态 (State)
 const isActive = ref(false)
 
-// Computed
+// 计算属性 (Computed)
 const displayText = computed(() => {
   return props.title.toUpperCase()
 })
 
-// Methods
+// 方法 (Methods)
+/**
+ * 处理点击事件
+ * 切换激活状态并触发 change 事件
+ */
 const handleClick = () => {
   isActive.value = !isActive.value
   emit('change', isActive.value)
 }
 
-// Lifecycle
+// 生命周期 (Lifecycle)
 onMounted(() => {
-  console.log('Component mounted')
+  console.log('组件已挂载')
 })
 </script>
 
@@ -37,13 +46,13 @@ onMounted(() => {
   <div class="component">
     <h2>{{ displayText }}</h2>
     <button @click="handleClick">
-      {{ isActive ? '啟用' : '停用' }}
+      {{ isActive ? '启用' : '停用' }}
     </button>
   </div>
 </template>
 
 <style scoped>
 .component {
-  /* 你的樣式 */
+  /* 在这里添加你的样式 */
 }
 </style>
