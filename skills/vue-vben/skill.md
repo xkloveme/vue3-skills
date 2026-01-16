@@ -332,8 +332,156 @@ const [Form, formApi] = useVbenForm({
     await api.submit(values)
   },
 })
-</script>
+
+#### 4. 列表页面开发
+
+Vben Admin 提供完整的列表页面开发模式，包含搜索表单、表格、CRUD 操作等。
+
+##### 可用模板
+
+- `assets/list-templates/OperatorList.vue` - 运营方管理列表页面（完整示例）
+- `assets/list-templates/modal.vue` - 新增/编辑模态框
+- `assets/list-templates/api.ts` - API 接口定义
+
+##### 使用方法
+
+```bash
+# 1. 复制模板文件
+cp assets/list-templates/OperatorList.vue src/views/operator/
+cp assets/list-templates/modal.vue src/views/operator/components/
+cp assets/list-templates/api.ts src/api/operator/
 ```
+
+##### 完整列表页面示例
+
+```vue
+<script setup lang="ts">
+import { Page, useVbenModal } from '@vben/common-ui';
+import { useRouter } from 'vue-router';
+import { message, Button, Switch, Modal as AntModal } from 'ant-design-vue';
+
+import {
+  getUserList,
+  addUser,
+  delUser,
+  updateUser,
+  resetUserPassword,
+  updateStatus,
+} from '#/api/operator';
+
+import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import ExtraModal from './modal.vue';
+
+// 搜索表单配置
+const formOptions = {
+  collapsed: false,
+  schema: [
+    {
+      component: 'Input',
+      fieldName: 'operatorName',
+      label: '运营方名称',
+    },
+  ],
+  submitOnChange: true,
+  submitOnEnter: false,
+};
+
+// 表格配置
+const gridOptions = {
+  columns: [
+    { title: '序号', type: 'seq', width: 80 },
+    { field: 'operatorName', title: '运营方名称', minWidth: 150 },
+    { field: 'status', slots: { default: 'status' }, title: '状态', width: 100 },
+    { slots: { default: 'action' }, fixed: 'right', width: 250, title: '操作' },
+  ],
+  proxyConfig: {
+    ajax: {
+      query: async ({ page }, formValues) => {
+        return await getUserList({
+          pageIndex: page.currentPage,
+          pageSize: page.pageSize,
+          ...formValues,
+        });
+      },
+    },
+  },
+};
+
+// 创建表格
+const [Grid, gridApi] = useVbenVxeGrid({
+  showSearchForm: false,
+  formOptions,
+  gridOptions,
+});
+
+// 创建模态框
+const [Modal, modalApi] = useVbenModal({
+  connectedComponent: ExtraModal,
+  onOpenChange(isOpen) {
+    if (!isOpen) {
+      gridApi.query();
+    }
+  },
+});
+
+// 打开模态框
+function openModal(row?) {
+  if (row) {
+    modalApi.setData({ row });
+    modalApi.setState({ title: '编辑运营方' });
+  } else {
+    modalApi.setData({});
+    modalApi.setState({ title: '新增运营方' });
+  }
+  modalApi.open();
+}
+
+// 路由跳转
+const router = useRouter();
+function openDetail(operatorId) {
+  router.push({ name: 'OperatorDetail', query: { operatorId } });
+}
+</script>
+
+<template>
+  <Page auto-content-height title="运营方管理">
+    <template #extra>
+      <Button type="primary" ghost @click="openModal()">新增</Button>
+    </template>
+    <Grid>
+      <template #operatorName="{ row }">
+        <Button type="link" @click="openDetail(row.operatorId)">
+          {{ row.operatorName }}
+        </Button>
+      </template>
+      <template #status="{ row }">
+        <Switch :checked="row.status === 'ON'" />
+      </template>
+      <template #action="{ row }">
+        <Button type="link" @click="openModal(row)">编辑</Button>
+        <Button type="link" @click="handleAction(row, 'reset')">重置密码</Button>
+        <Button 
+          type="link" 
+          @click="handleAction(row, row.status === 'ON' ? 'stop' : 'start')"
+        >
+          {{ row.status === 'ON' ? '停用' : '启用' }}
+        </Button>
+      </template>
+    </Grid>
+    <Modal />
+  </Page>
+</template>
+```
+
+##### 核心功能
+
+| 功能 | 说明 |
+|------|------|
+| 搜索表单 | 支持字段搜索、回车提交、值变化时提交 |
+| 表格 | 支持分页、排序、复选、工具栏、自定义列 |
+| 模态框 | 支持新增、编辑、表单验证 |
+| CRUD | 支持增删改查、状态切换、密码重置 |
+| 路由 | 支持页面跳转、详情页导航 |
 
 ### 5. 主题与样式
 
