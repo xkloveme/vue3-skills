@@ -22,3 +22,4 @@ yarn-error.log
 # Build
 dist/
 build/
+.DS_Store

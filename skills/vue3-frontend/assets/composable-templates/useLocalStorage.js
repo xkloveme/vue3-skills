@@ -2,9 +2,22 @@ import { ref, watch } from 'vue'
 
 /**
  * 与 localStorage 同步的响应式状态
+ * 支持跨标签页同步、自动错误处理、手动清理
+ * 
  * @param {string} key - localStorage key
  * @param {any} defaultValue - 默认值
- * @returns {Ref} - 响应式引用
+ * @returns {object} - { value, setValue, removeValue, stop }
+ * 
+ * @example
+ * // 基本使用
+ * const { value, setValue } = useLocalStorage('theme', 'light')
+ * 
+ * // 跨标签页同步
+ * // 自动监听 storage 事件，保持数据同步
+ * 
+ * // 手动清理
+ * const { stop } = useLocalStorage('temp')
+ * // 调用 stop() 移除事件监听器
  */
 export function useLocalStorage(key, defaultValue = null) {
   // 读取初始值
@@ -66,6 +79,16 @@ export function useLocalStorage(key, defaultValue = null) {
 
 /**
  * 简化版本 - 直接返回 ref
+ * 自动保存到 localStorage
+ * 
+ * @param {string} key - localStorage key
+ * @param {any} defaultValue - 默认值
+ * @returns {Ref} - 响应式引用
+ * 
+ * @example
+ * // 自动保存
+ * const theme = useStorage('theme', 'light')
+ * theme.value = 'dark'  // 自动保存到 localStorage
  */
 export function useStorage(key, defaultValue = null) {
   const { value, setValue } = useLocalStorage(key, defaultValue)

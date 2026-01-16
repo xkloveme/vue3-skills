@@ -1,5 +1,25 @@
 # Vue 3 常用模式
 
+## 🚀 开发工具推荐
+
+### 使用 Bun 加速开发
+```bash
+# 创建 Vue 3 项目
+bun create vue@latest my-project
+
+# 安装依赖 (极速)
+bun install
+
+# 开发
+bun run dev
+
+# 构建
+bun run build
+
+# 运行测试
+bun run test
+```
+
 ## 表单处理模式 (Form Handling Patterns)
 
 ### 1. 基本表单处理
@@ -79,6 +99,9 @@ const handleSubmit = async () => {
 import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
 
+// 安装依赖
+// bun add vee-validate @vee-validate/yup
+
 const schema = yup.object({
   username: yup.string().required('请输入用户名'),
   email: yup.string().email('请输入有效的 Email').required('请输入 Email'),
@@ -115,6 +138,12 @@ const onSubmit = handleSubmit(async (values) => {
   </form>
 </template>
 ```
+
+**表单验证库对比：**
+- **VeeValidate**: 功能强大，支持 Yup, Zod, 自定义规则
+- **Vuelidate**: 轻量级，基于 Vue 的验证库
+- **Zod**: TypeScript 优先的模式验证库
+- **Yup**: 基于 Schema 的验证库（流行）
 
 ## 数据获取模式 (Data Fetching Patterns)
 
@@ -172,6 +201,9 @@ onMounted(fetchUsers)
 <script setup>
 import { useFetch } from '@vueuse/core'
 
+// 安装依赖
+// bun add @vueuse/core
+
 const { data, error, isFetching } = useFetch('/api/users').json()
 
 // 延迟执行
@@ -179,6 +211,13 @@ const { data, execute } = useFetch('/api/users', { immediate: false }).json()
 
 // 带 refetch
 const { data, refetch } = useFetch('/api/users').json()
+
+// 自动重试
+const { data } = useFetch('/api/users', {
+  retry: 3,           // 重试次数
+  retryDelay: 1000,   // 重试延迟
+  timeout: 5000       // 超时时间
+}).json()
 </script>
 
 <template>
@@ -192,16 +231,27 @@ const { data, refetch } = useFetch('/api/users').json()
 </template>
 ```
 
-### 3. TanStack Query (Vue Query)
+**VueUse 优势：**
+- 50+ 个实用的 composables
+- TypeScript 支持完善
+- 性能优化良好
+- 社区活跃，持续更新
+
+### 3. TanStack Query (Vue Query) - 企业级推荐
 
 ```vue
 <script setup>
 import { useQuery, useMutation } from '@tanstack/vue-query'
 
+// 安装依赖
+// bun add @tanstack/vue-query
+
 // 查询
 const { data, isLoading, error, refetch } = useQuery({
   queryKey: ['users'],
-  queryFn: () => fetch('/api/users').then(r => r.json())
+  queryFn: () => fetch('/api/users').then(r => r.json()),
+  staleTime: 5 * 60 * 1000,  // 5 分钟缓存
+  cacheTime: 10 * 60 * 1000  // 10 分钟保留
 })
 
 // 变更
@@ -211,7 +261,10 @@ const mutation = useMutation({
     body: JSON.stringify(newUser)
   }),
   onSuccess: () => {
-    refetch()
+    refetch()  // 成功后重新查询
+  },
+  onError: (error) => {
+    console.error('Mutation error:', error)
   }
 })
 
@@ -219,7 +272,30 @@ const addUser = () => {
   mutation.mutate({ name: 'New User' })
 }
 </script>
+
+<template>
+  <div v-if="isLoading">加载中...</div>
+  <div v-else-if="error">错误: {{ error.message }}</div>
+  <div v-else>
+    <div v-for="user in data" :key="user.id">
+      {{ user.name }}
+    </div>
+  </div>
+  
+  <button @click="addUser" :disabled="mutation.isPending">
+    {{ mutation.isPending ? '添加中...' : '添加用户' }}
+  </button>
+</template>
 ```
+
+**TanStack Query 特性：**
+- ✅ 自动缓存和重新获取
+- ✅ 离线支持
+- ✅ 分页和无限滚动
+- ✅ 乐观更新
+- ✅ 请求去重
+- ✅ 错误重试
+- **适合**: 复杂的数据获取场景、需要缓存的应用
 
 ## 列表渲染模式 (List Rendering Patterns)
 

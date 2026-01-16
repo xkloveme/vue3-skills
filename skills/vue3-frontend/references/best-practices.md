@@ -1,5 +1,35 @@
 # Vue 3 最佳实践
 
+## 🚀 开发环境推荐
+
+### 包管理器：Bun (强烈推荐)
+**为什么选择 Bun？**
+- ⚡ **极速性能**：比 npm/yarn/pnpm 快 10-100 倍
+- 🔧 **一体化工具**：内置打包器、测试运行器、脚本执行器
+- 📦 **完全兼容**：与 npm 生态系统 100% 兼容
+- 🎯 **零配置**：开箱即用，无需复杂配置
+
+**Bun 常用命令：**
+```bash
+# 安装依赖 (极速)
+bun install
+
+# 添加依赖
+bun add vue vue-router pinia
+
+# 开发服务器
+bun run dev
+
+# 构建
+bun run build
+
+# 运行测试
+bun run test
+
+# 运行类型检查
+bun run type-check
+```
+
 ## 组件设计 (Component Design)
 
 ### 1. 使用 `<script setup>` 语法
@@ -86,10 +116,11 @@ const { data, error, loading, fetchData } = useFetch('/api/users')
 ### 4. 适当的组件拆分
 
 ```vue
-<!-- ❌ 避免 - 单一组件过于庞大 -->
+<!-- ❌ 避免 - 单一组件过于庞大 (> 200 行) -->
 <template>
   <div>
     <!-- 100+ 行的复杂模板 -->
+    <!-- 包含过多逻辑和样式 -->
   </div>
 </template>
 
@@ -102,6 +133,13 @@ const { data, error, loading, fetchData } = useFetch('/api/users')
   </div>
 </template>
 ```
+
+**组件拆分原则：**
+- 单个组件文件应保持在 **200 行以内**
+- 复杂逻辑提取到 **composables** 中
+- 通用 UI 元素提取到 **公共组件**（如 Button, Input）
+- 业务逻辑组件放在 **features** 目录
+- 布局组件放在 **layout** 目录
 
 ## 响应式最佳实践 (Reactivity Best Practices)
 
@@ -200,6 +238,33 @@ watch(source, (newVal, oldVal, onCleanup) => {
 
 ## 性能优化 (Performance Optimization)
 
+### 性能优化检查清单
+
+在优化前，先使用以下工具分析性能：
+```bash
+# 使用 Bun 运行性能分析
+bun run build --profile
+
+# 或使用 Vite 的分析插件
+bun run build --report
+```
+
+**常见性能问题：**
+1. ❌ 使用 methods 代替 computed（每次渲染都会执行）
+2. ❌ 不必要的 v-if 使用（影响渲染性能）
+3. ❌ v-for 缺少 key（Vue 无法正确复用 DOM）
+4. ❌ 大型组件未拆分（增加初始加载时间）
+5. ❌ 未使用懒加载（所有组件同时加载）
+6. ❌ 大型列表未使用虚拟滚动（内存占用过高）
+
+**优化方案：**
+1. ✅ 使用 computed 处理衍生数据（缓存结果）
+2. ✅ 使用 v-show 处理频繁切换（只是 CSS 隐藏）
+3. ✅ v-for 中始终使用唯一的 key
+4. ✅ 使用 defineAsyncComponent 懒加载大型组件
+5. ✅ 对大型列表使用虚拟滚动（vue-virtual-scroller）
+6. ✅ 使用 KeepAlive 缓存组件状态
+
 ### 1. 使用 computed 而非 method
 
 ```vue
@@ -208,34 +273,39 @@ import { ref, computed } from 'vue'
 
 const items = ref([1, 2, 3, 4, 5])
 
-// ✅ 推荐 - computed 会缓存结果
+// ✅ 推荐 - computed 会缓存结果，依赖变化时才重新计算
 const filteredItems = computed(() => {
   return items.value.filter(item => item > 2)
 })
 
-// ❌ 避免 - method 每次都会重新执行
+// ❌ 避免 - method 每次渲染都会重新执行
 const getFilteredItems = () => {
   return items.value.filter(item => item > 2)
 }
 </script>
 
 <template>
-  <!-- ✅ 使用 computed -->
+  <!-- ✅ 使用 computed (缓存结果) -->
   <div v-for="item in filteredItems" :key="item">{{ item }}</div>
   
-  <!-- ❌ 每次渲染都会执行 -->
+  <!-- ❌ 每次渲染都会执行 (性能差) -->
   <div v-for="item in getFilteredItems()" :key="item">{{ item }}</div>
 </template>
 ```
+
+**性能对比：**
+- `computed`: 依赖变化时才重新计算，结果被缓存
+- `method`: 每次渲染都会执行，无缓存
+- **建议**: 任何在模板中使用的计算逻辑都应使用 `computed`
 
 ### 2. 使用 v-show vs v-if
 
 ```vue
 <template>
-  <!-- ✅ 频繁切换使用 v-show -->
+  <!-- ✅ 频繁切换使用 v-show (只是 CSS 隐藏，DOM 仍在) -->
   <div v-show="isVisible">Content</div>
   
-  <!-- ✅ 初始渲染条件使用 v-if -->
+  <!-- ✅ 初始渲染条件使用 v-if (DOM 会被销毁/创建) -->
   <div v-if="hasPermission">Admin Panel</div>
   
   <!-- ✅ 互斥条件使用 v-if/v-else-if/v-else -->
@@ -245,16 +315,22 @@ const getFilteredItems = () => {
 </template>
 ```
 
+**选择指南：**
+- **v-show**: 频繁切换（如标签页、下拉菜单）- 性能更好
+- **v-if**: 初始条件渲染（如权限控制、首次加载）- 减少初始 DOM 节点
+- **v-else-if/v-else**: 互斥条件 - 代码更清晰
+
 ### 3. 正确使用 key
 
 ```vue
 <template>
-  <!-- ✅ v-for 必须使用唯一的 key -->
+  <!-- ✅ v-for 必须使用唯一的 key (推荐使用 id) -->
   <div v-for="item in items" :key="item.id">
     {{ item.name }}
   </div>
   
   <!-- ❌ 避免使用 index 作为 key (除非列表是静态的) -->
+  <!-- 原因：当列表顺序变化时，Vue 会错误地复用 DOM 节点 -->
   <div v-for="(item, index) in items" :key="index">
     {{ item.name }}
   </div>
@@ -263,6 +339,11 @@ const getFilteredItems = () => {
   <UserProfile :key="userId" :user-id="userId" />
 </template>
 ```
+
+**Key 的作用：**
+- Vue 使用 key 来识别和复用 DOM 节点
+- 唯一的 key 确保正确的组件状态和性能
+- **最佳实践**: 始终使用数据的唯一标识符（如 `id`）
 
 ### 4. 延迟加载大型组件
 
@@ -274,38 +355,55 @@ const HeavyComponent = defineAsyncComponent(() =>
   import('./HeavyComponent.vue')
 )
 
-// ✅ 带加载和错误状态
+// ✅ 带加载和错误状态 (更好的用户体验)
 const HeavyComponent = defineAsyncComponent({
   loader: () => import('./HeavyComponent.vue'),
   loadingComponent: LoadingSpinner,
   errorComponent: ErrorComponent,
-  delay: 200,
-  timeout: 3000
+  delay: 200,      // 延迟显示加载组件的时间
+  timeout: 3000    // 超时时间
 })
 ```
+
+**懒加载优势：**
+- 减少初始 bundle 大小
+- 加快首屏加载速度
+- 按需加载，提升用户体验
+- **建议**: 对于非首屏组件、模态框、复杂图表等使用懒加载
 
 ### 5. 使用 KeepAlive 缓存组件
 
 ```vue
 <template>
-  <!-- ✅ 缓存动态组件 -->
+  <!-- ✅ 缓存动态组件 (保持组件状态) -->
   <KeepAlive :max="10">
     <component :is="currentComponent" />
   </KeepAlive>
   
-  <!-- ✅ 缓存路由组件 -->
+  <!-- ✅ 缓存路由组件 (保持页面状态) -->
   <router-view v-slot="{ Component }">
     <KeepAlive>
       <component :is="Component" />
     </KeepAlive>
   </router-view>
   
-  <!-- ✅ 条件缓存 -->
+  <!-- ✅ 条件缓存 (只缓存指定组件) -->
   <KeepAlive :include="['ComponentA', 'ComponentB']">
+    <component :is="currentComponent" />
+  </KeepAlive>
+  
+  <!-- ✅ 排除缓存 (不缓存指定组件) -->
+  <KeepAlive :exclude="['ComponentC']">
     <component :is="currentComponent" />
   </KeepAlive>
 </template>
 ```
+
+**KeepAlive 使用场景：**
+- 标签页切换（保持每个标签页的状态）
+- 表单填写（防止用户意外切换页面丢失数据）
+- 路由导航（保持页面滚动位置和数据）
+- **注意**: 使用 `max` 属性限制缓存数量，避免内存泄漏
 
 ### 6. 虚拟滚动处理大列表
 
@@ -331,25 +429,43 @@ const items = ref([/* 10000+ items */])
 </template>
 ```
 
+**虚拟滚动优势：**
+- 只渲染可视区域的 DOM 节点
+- 大幅减少内存占用（10000+ 条数据）
+- 提升滚动性能
+- **建议**: 列表超过 1000 条数据时考虑使用虚拟滚动
+- **替代方案**: `vue-virtual-scroller`, `vue3-virtual-scroll-list`, `vue-virtual-scroll-grid`
+
 ## 代码组织 (Code Organization)
 
 ### 1. 文件结构
 
 ```
 src/
-├── assets/          # 静态资源
+├── assets/          # 静态资源 (图片、字体、样式)
 ├── components/      # 通用组件
-│   ├── common/      # 基础组件 (Button, Input)
-│   ├── layout/      # 布局组件 (Header, Footer)
-│   └── features/    # 功能组件
-├── composables/     # 可重用逻辑
-├── stores/          # Pinia stores
-├── router/          # 路由设置
-├── views/           # 页面组件
-├── utils/           # 工具函数
-├── services/        # API 服务
+│   ├── common/      # 基础组件 (Button, Input, Card)
+│   ├── layout/      # 布局组件 (Header, Footer, Sidebar)
+│   └── features/    # 功能组件 (业务相关)
+├── composables/     # 可重用逻辑 (useFetch, useAuth)
+├── stores/          # Pinia stores (状态管理)
+├── router/          # 路由配置
+├── views/           # 页面组件 (路由级组件)
+├── utils/           # 工具函数 (日期格式化、验证)
+├── services/        # API 服务 (Axios 封装)
 ├── types/           # TypeScript 类型定义
-└── constants/       # 常量定义
+└── constants/       # 常量定义 (API 端点、配置)
+```
+
+**使用 Bun 创建项目结构：**
+```bash
+# 创建 Vue 3 项目
+bun create vue@latest my-project
+
+# 项目结构会自动创建
+cd my-project
+bun install
+bun run dev
 ```
 
 ### 2. 组件命名规范
@@ -466,6 +582,45 @@ const fetchData = async () => {
 
 ## TypeScript 集成 (TypeScript Integration)
 
+### TypeScript 优势
+- ✅ **类型安全**: 编译时发现错误
+- ✅ **更好的 IDE 支持**: 自动补全、重构
+- ✅ **文档化**: 类型即文档
+- ✅ **团队协作**: 减少沟通成本
+
+### 启用 TypeScript
+```bash
+# 使用 Bun 创建 TypeScript 项目
+bun create vue@latest my-project --typescript
+
+# 或手动添加
+bun add -D typescript @types/node
+bun run type-check
+```
+
+**tsconfig.json 推荐配置：**
+```json
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "lib": ["ESNext", "DOM"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "exclude": ["node_modules"]
+}
+```
+
 ### 1. 为 Props 定义类型
 
 ```vue
@@ -535,6 +690,41 @@ export function useFetch<T>(url: string): UseFetchReturn<T> {
 ```
 
 ## 测试注意事项 (Testing Considerations)
+
+### 测试工具推荐
+
+**使用 Bun 运行测试：**
+```bash
+# 安装测试依赖
+bun add -D vitest @vue/test-utils @vitest/ui
+
+# 运行测试
+bun run test
+
+# 运行测试并查看 UI
+bun run test:ui
+
+# 运行单个测试文件
+bun run test src/components/MyComponent.spec.ts
+
+# 运行特定测试
+bun run test -t "should handle error case"
+
+# 生成覆盖率报告
+bun run test:coverage
+```
+
+**package.json 配置：**
+```json
+{
+  "scripts": {
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  }
+}
+```
 
 ### 1. 可测试的组件设计
 
